@@ -17,12 +17,13 @@ spec:
         fsGroup: 33
         runAsUser: 33
         runAsGroup: 33
-    spec:
       containers:
         - name: linkding
           image: sissbruecker/linkding:1.31.0
           ports:
             - containerPort: 9090
+          securityContext:
+            allowPrivlegeEscalation: false
 
           volumeMounts:
             - name: linkding-data
