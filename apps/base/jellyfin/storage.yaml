@@ -32,7 +32,7 @@ spec:
     readOnly: false
     volumeHandle: jellyfin-old-media-volume
     volumeAttributes:
-      source: //192.168.1.153/server_media_old
+      source: //192.168.1.153/server_old_media
     nodeStageSecretRef:
       name: smb-credentials
       namespace: jellyfin
