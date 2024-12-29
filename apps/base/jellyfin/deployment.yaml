@@ -22,12 +22,12 @@ spec:
         app: jellyfin
     spec:
       volumes:
-      - name: nfs-jellyfin-config
+      - name: jellyfin-config
         persistentVolumeClaim:
-          claimName: jellyfin-pvc-config
-      - name: nfs-jellyfin-data
+          claimName: jellyfin-config-pvc
+      - name: jellyfin-media
         persistentVolumeClaim:
-          claimName: jellyfin-pvc-data
+          claimName: jellyfin-pvc-old-media
       # The settings below have been marked out and can be used when removing the "#"
       # - name: device-vcsm # Only needed if you want to use your Raspberry Pi MMAL video decoding (Enabled as OpenMax H264 decode in gui settings).
       #   hostPath:
@@ -80,8 +80,8 @@ spec:
           name: jellyfin-config
         - mountPath: /data/old_media
           name: jellyfin-old-media
-        - mountPath: /data/new_media
-          name: jellyfin-new-media
+          #        - mountPath: /data/new_media
+          #          name: jellyfin-new-media
         # Below are the path to mount devices for hardware acceleration
         # The settings below have been marked out and can be used when removing the "#"
         # - mountPath: /dev/vcsm
