@@ -25,13 +25,14 @@ spec:
   mountOptions:
     - dir_mode=0777
     - file_mode=0777
-    - vers=3.0
+    - noperm
+    - iocharset=utf8
   csi:
     driver: smb.csi.k8s.io
     readOnly: false
     volumeHandle: jellyfin-old-media-volume
     volumeAttributes:
-      source: //192.168.1.152/server_media_old
+      source: //192.168.1.153/server_media_old
     nodeStageSecretRef:
       name: smb-credentials
       namespace: jellyfin
