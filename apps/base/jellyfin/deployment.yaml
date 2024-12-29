@@ -78,8 +78,8 @@ spec:
         volumeMounts:
         - mountPath: /config
           name: jellyfin-config
-        - mountPath: /data/old_media
-          name: jellyfin-old-media
+        - mountPath: /data/media
+          name: jellyfin-media
           #        - mountPath: /data/new_media
           #          name: jellyfin-new-media
         # Below are the path to mount devices for hardware acceleration
