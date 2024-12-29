@@ -47,7 +47,7 @@ spec:
       containers:
       - env:
         - name: JELLYFIN_PublishedServerUrl 
-          value: xxx.xxx.xxx.xxx # The IP number for your jellyfin server (see service config)
+          value: 192.168.1.52
         - name: PGID
           value: "1000" # < ASCII code for '65541'
         - name: PUID
