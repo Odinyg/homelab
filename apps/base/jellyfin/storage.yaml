@@ -60,20 +60,20 @@ spec:
       #    nodeStageSecretRef:
       #      name: smb-credentials
       #      namespace: jellyfin
-      #---
-      #apiVersion: v1
-      #kind: PersistentVolumeClaim
-      #metadata:
-      #  name: jellyfin-pvc-old-media
-      #  namespace: jellyfin
-      #spec:
-      #  accessModes:
-      #    - ReadWriteMany
-      #  resources:
-      #    requests:
-      #      storage: 1Ti
-      #  volumeName: jellyfin-pv-smb-old-media
-      #  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-pvc-old-media
+  namespace: jellyfin
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  volumeName: jellyfin-pv-smb-old-media
+  storageClassName: ""
       #---
       #apiVersion: v1
       #kind: PersistentVolumeClaim
