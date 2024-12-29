@@ -87,4 +87,4 @@ spec:
       #    requests:
       #      storage: 1Ti
       #  volumeName: jellyfin-pv-smb-new-media
-linkding      #  storageClassName: ""
+#  storageClassName: ""
