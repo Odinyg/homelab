@@ -28,30 +28,17 @@ spec:
       - name: jellyfin-media
         persistentVolumeClaim:
           claimName: jellyfin-pvc-old-media
-      # The settings below have been marked out and can be used when removing the "#"
-      # - name: device-vcsm # Only needed if you want to use your Raspberry Pi MMAL video decoding (Enabled as OpenMax H264 decode in gui settings).
-      #   hostPath:
-      #     path: /dev/vcsm 
-      # - name: device-vchiq  #Only needed if you want to use your Raspberry Pi OpenMax video encoding.
-      #   hostPath:
-      #    path: /dev/vchiq
-      # - name: device-video10  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
-      #   hostPath:
-      #     path: /dev/video10 
-      # - name: device-video11  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
-      #   hostPath:
-      #     path: /dev/video11 
-      # - name: device-video12  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
-      #   hostPath:
-      #      path: /dev/video12 
+      - name: jellyfin-new-media
+        persistentVolumeClaim:
+          claimName: jellyfin-pvc-new-media
       containers:
       - env:
         - name: JELLYFIN_PublishedServerUrl 
           value: 192.168.1.52
         - name: PGID
-          value: "1000" # < ASCII code for '65541'
+          value: "1000" 
         - name: PUID
-          value: "1000" #< ACII code for '1044'
+          value: "1000" 
         - name: TZ
           value: Europe/Amsterdam
         securityContext:
@@ -80,19 +67,7 @@ spec:
           name: jellyfin-config
         - mountPath: /data/media
           name: jellyfin-media
-          #        - mountPath: /data/new_media
-          #          name: jellyfin-new-media
-        # Below are the path to mount devices for hardware acceleration
-        # The settings below have been marked out and can be used when removing the "#"
-        # - mountPath: /dev/vcsm
-        #   name: device-vcsm
-        # - mountPath: /dev/vchiq
-        #   name: device-vchiq
-        # - mountPath: /dev/video10
-        #   name: device-video10
-        # - mountPath: /dev/video11
-        #   name: device-video11
-        # - mountPath: /dev/video12
-        #   name: device-video12
+        - mountPath: /data/new_media
+          name: jellyfin-new-media
       dnsPolicy: ClusterFirst
       restartPolicy: Always
