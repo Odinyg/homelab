@@ -6,10 +6,24 @@ spec:
   ports:
     - port: 8096
       targetPort: 8096
-      nodePort: 8096
+      nodePort: 30096
+      protocol: TCP
+      name: http-tcp
+    - port: 8920
+      targetPort: 8920
+      nodePort: 30920
+      protocol: TCP
+      name: https-tcp
+    - port: 1900
+      targetPort: 1900
+      nodePort: 31900
+      protocol: UDP
+      name: dlna-udp
     - port: 7359
       targetPort: 7359
-      nodePort: 7359
+      nodePort: 31359
+      protocol: UDP
+      name: discovery-udp
   selector:
     app: jellyfin
-  type: ClusterIP
+  type: nodePort
