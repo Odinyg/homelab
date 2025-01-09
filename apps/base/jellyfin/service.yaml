@@ -26,4 +26,4 @@ spec:
       name: discovery-udp
   selector:
     app: jellyfin
-  type: nodePort
+  type: NodePort
