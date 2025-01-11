@@ -23,9 +23,6 @@ spec:
     spec:
       runtimeClassName: nvidia
       volumes:
-      - name: jellyfin-hardware
-        hostPath:
-          path: /dev/dri
       - name: jellyfin-config
         persistentVolumeClaim:
           claimName: jellyfin-config-pvc
@@ -37,6 +34,8 @@ spec:
           claimName: jellyfin-pvc-new-media
       containers:
       - env:
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "all"
         - name: NVIDIA_VISIBLE_DEVICES
           value: "all"
         - name: JELLYFIN_PublishedServerUrl 
@@ -48,7 +47,9 @@ spec:
         - name: TZ
           value: Europe/Amsterdam
         securityContext:
-          privileged: true # Container must run as privileged inside of the pod, required for hardware acceleration
+          privileged: true 
+          capabilities:
+            add: ["SYS_ADMIN"]
         image: ghcr.io/linuxserver/jellyfin
         imagePullPolicy: Always
         name: jellyfin
@@ -68,11 +69,11 @@ spec:
         resources: 
           limits:
             nvidia.com/gpu: "1" 
+          requests:
+            nvidia.com/gpu: "1"
         stdin: true
         tty: true
         volumeMounts:
-        - mountPath: /dev/dri
-          name: jellyfin-hardware
         - mountPath: /config
           name: jellyfin-config
         - mountPath: /data/media
