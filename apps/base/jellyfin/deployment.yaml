@@ -73,8 +73,6 @@ spec:
         volumeMounts:
         - mountPath: /dev/dri
           name: jellyfin-hardware
-          securityContext:
-          privileged: true
         - mountPath: /config
           name: jellyfin-config
         - mountPath: /data/media
