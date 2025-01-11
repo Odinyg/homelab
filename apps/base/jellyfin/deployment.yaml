@@ -21,7 +21,11 @@ spec:
       labels:
         app: jellyfin
     spec:
+      runtimeClassName: nvidia
       volumes:
+      - name: dev-dri
+        hostPath:
+          path: /dev/dri
       - name: jellyfin-config
         persistentVolumeClaim:
           claimName: jellyfin-config-pvc
@@ -33,6 +37,8 @@ spec:
           claimName: jellyfin-pvc-new-media
       containers:
       - env:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
         - name: JELLYFIN_PublishedServerUrl 
           value: 192.168.1.52
         - name: PGID
@@ -59,7 +65,9 @@ spec:
         - containerPort: 7359
           name: discovery-udp
           protocol: UDP      
-        resources: {}
+        resources: 
+          limits:
+            nvidia.com/gpu: "1" 
         stdin: true
         tty: true
         volumeMounts:
