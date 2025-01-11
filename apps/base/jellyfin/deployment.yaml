@@ -23,7 +23,7 @@ spec:
     spec:
       runtimeClassName: nvidia
       volumes:
-      - name: dev-dri
+      - name: jellyfin-hardware
         hostPath:
           path: /dev/dri
       - name: jellyfin-config
@@ -71,6 +71,10 @@ spec:
         stdin: true
         tty: true
         volumeMounts:
+        - mountPath: /dev/dri
+          name: jellyfin-hardware
+          securityContext:
+          privileged: true
         - mountPath: /config
           name: jellyfin-config
         - mountPath: /data/media
