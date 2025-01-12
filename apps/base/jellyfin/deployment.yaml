@@ -21,7 +21,6 @@ spec:
       labels:
         app: jellyfin
     spec:
-      runtimeClassName: nvidia
       volumes:
       - name: jellyfin-config
         persistentVolumeClaim:
@@ -69,8 +68,6 @@ spec:
         resources: 
           limits:
             nvidia.com/gpu: "1" 
-          requests:
-            nvidia.com/gpu: "1"
         stdin: true
         tty: true
         volumeMounts:
