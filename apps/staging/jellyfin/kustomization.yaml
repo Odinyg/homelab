@@ -4,6 +4,7 @@ namespace: jellyfin
 resources:
   - ../../base/jellyfin
   - cloudflare.yaml
+  - cloudflare-secrets.yaml
 
 
 
