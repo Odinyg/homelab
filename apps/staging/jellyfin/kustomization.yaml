@@ -5,6 +5,7 @@ resources:
   - ../../base/jellyfin
   - cloudflare.yaml
   - cloudflare-secret.yaml
+  - smb-credentials.yaml
 
 
 
