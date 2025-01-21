@@ -22,7 +22,7 @@ metadata:
   namespace: jellyfin
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: ""
   volumeName: jellyfin-pv-nfs-config
   resources:
