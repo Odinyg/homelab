@@ -1,18 +1,19 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: jellyfin-config-pv
+  name: jellyfin-pv-nfs-config
   namespace: jellyfin
 spec:
   capacity:
-    storage: 1Gi
+    storage: 20Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: local-path
-  local:
-    path: /var/lib/rancher/k3s/storage
+  nfs:
+    path: /config/jellyfin
+    server: 192.168.1.153
+    readOnly: false
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -22,11 +23,11 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
-  volumeName: jellyfin-config-pv
+  storageClassName: ""
+  volumeName: jellyfin-pv-nfs-config
   resources:
     requests:
-      storage: 1Gi
+      storage: 20Gi
 ---
 apiVersion: v1
 kind: PersistentVolume
