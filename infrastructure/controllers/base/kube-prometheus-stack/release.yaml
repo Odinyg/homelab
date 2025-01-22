@@ -30,7 +30,7 @@ spec:
       adminPassword: test
 
       ingress:
-        enable: true
+        enabled: true
         ingressClassName: traefik
         hosts:
           - gr.pytt.io
