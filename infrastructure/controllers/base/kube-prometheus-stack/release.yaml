@@ -37,4 +37,5 @@ spec:
       tls:
         - secretName: grafana-tls-secret
           hosts:
+            - *.pytt.io
             - gr.pytt.io
