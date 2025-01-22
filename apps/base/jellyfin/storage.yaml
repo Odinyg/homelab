@@ -29,7 +29,7 @@ metadata:
   namespace: jellyfin
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClassName: local-path
   volumeName: jellyfin-pv-local-config
   resources:
