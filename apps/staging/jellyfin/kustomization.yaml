@@ -6,6 +6,7 @@ resources:
   - cloudflare.yaml
   - cloudflare-secret.yaml
   - smb-credentials.yaml
+  - ingress.yaml
 
 
 
