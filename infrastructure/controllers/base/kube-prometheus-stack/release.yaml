@@ -29,10 +29,10 @@ spec:
     grafana:
       adminPassword: test
 
-    ingress:
-      enable: true
-      ingressClassName: traefik
-      hosts: gr.pytt.io
-      paths:
-        - path: /
-          pathType: Prefix
+      ingress:
+        enable: true
+        ingressClassName: traefik
+        hosts: gr.pytt.io
+        paths:
+          - path: /
+            pathType: Prefix
