@@ -13,7 +13,7 @@ spec:
      labels:
        app: steam-headless
    spec:
-     nodeName: mainkube    # Specified node name
+     nodeName: mainkube
      hostNetwork: true
      securityContext:
        fsGroup: 1000
@@ -54,7 +54,7 @@ spec:
          value: 'nvidia'
        - name: PUID
          value: '1000'
-       - name: PGID
+       - name: PGIDkubectl get statefulset steam-headless
          value: '1000'
        - name: UMASK
          value: '000'
