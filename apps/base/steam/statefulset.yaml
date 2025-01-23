@@ -25,10 +25,10 @@ spec:
        resources:
          requests:
            memory: "24G"
-           cpu: "4"
+           cpu: "3"
          limits:
            memory: "24G"
-           cpu: "4"
+           cpu: "3"
            nvidia.com/gpu: 1
        volumeMounts:
        - name: home-dir
