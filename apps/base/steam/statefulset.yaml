@@ -54,7 +54,7 @@ spec:
          value: 'nvidia'
        - name: PUID
          value: '1000'
-       - name: PGIDkubectl get statefulset steam-headless
+       - name: PGID
          value: '1000'
        - name: UMASK
          value: '000'
