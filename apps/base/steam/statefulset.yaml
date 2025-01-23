@@ -59,8 +59,6 @@ spec:
          value: '1000'
        - name: UMASK
          value: '000'
-       - name: USER_PASSWORD
-         value: 'password'
        - name: MODE
          value: 'primary'
        - name: WEB_UI_MODE
@@ -73,16 +71,27 @@ spec:
          value: ''
        - name: ENABLE_SUNSHINE
          value: 'true'
-       - name: SUNSHINE_USER
-         value: 'sam'
-       - name: SUNSHINE_PASS
-         value: 'password'
        - name: ENABLE_EVDEV_INPUTS
          value: 'true'
        - name: NVIDIA_DRIVER_CAPABILITIES
          value: 'all'
        - name: NVIDIA_VISIBLE_DEVICES
          value: 'all'
+       - name: USER_PASSWORD
+         valueFrom:
+           secretKeyRef:
+             name: steam-secrets
+             key: user_password
+       - name: SUNSHINE_USER
+         valueFrom:
+           secretKeyRef:
+             name: steam-secrets
+             key: sunshine_user
+       - name: SUNSHINE_PASS
+         valueFrom:
+           secretKeyRef:
+             name: steam-secrets
+             key: sunshine_pass
      volumes:
      - name: home-dir
        hostPath:

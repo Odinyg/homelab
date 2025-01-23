@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - statefulset.yaml
   - namespace.yaml
+  - steam-secrets.yaml
 
 
