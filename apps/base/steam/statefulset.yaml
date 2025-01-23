@@ -13,6 +13,7 @@ spec:
      labels:
        app: steam-headless
    spec:
+     runtimeClassName: nvidia
      nodeName: mainkube
      hostNetwork: true
      securityContext:
