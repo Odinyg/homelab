@@ -25,11 +25,11 @@ spec:
        image: josh5/steam-headless:latest
        resources:
          requests:
-           memory: "24G"
-           cpu: "3"
+           memory: "20G"
+           cpu: "4"
          limits:
            memory: "24G"
-           cpu: "3"
+           cpu: "4"
            nvidia.com/gpu: 1
        volumeMounts:
        - name: home-dir
