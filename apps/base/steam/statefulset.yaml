@@ -83,7 +83,7 @@ spec:
          value: 'all'
        - name: NVIDIA_VISIBLE_DEVICES
          value: 'all'
-       - name: NVIDIA_DRIVER_VERSION
+       - name: NVIDIA_HOST_DRIVER_VERSION
          value: "525.127.05"
      volumes:
      - name: home-dir
