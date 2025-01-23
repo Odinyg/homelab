@@ -6,7 +6,8 @@
 1. Install Nvidia driver,toolkit and nvidia-smi follow the nvidia documentation.
 2. Configure the k3s containerd instead of the standalone containerd:
 `sudo nvidia-ctk runtime configure --runtime=containerd --config=/var/lib/rancher/k3s/agent/etc/containerd/config.toml`
-`sudo asystemctl restart k3s
+
+`sudo asystemctl restart k3s`
 ### For headless steam:
 - make sure that the driver on you node is avaliable on https://download.nvidia.com/XFree86/Linux-x86_64/
 - all drivers are same version `sudo apt list --installed '*nvidia*'`
