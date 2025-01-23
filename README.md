@@ -7,6 +7,13 @@
 2. Configure the k3s containerd instead of the standalone containerd:
 `sudo nvidia-ctk runtime configure --runtime=containerd --config=/var/lib/rancher/k3s/agent/etc/containerd/config.toml`
 `sudo asystemctl restart k3s
+### For headless steam:
+- make sure that the driver on you node is avaliable on https://download.nvidia.com/XFree86/Linux-x86_64/
+- all drivers are same version `sudo apt list --installed '*nvidia*'`
+
+
 #### Links:
 https://github.com/NVIDIA/k8s-device-plugin
 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+
+
