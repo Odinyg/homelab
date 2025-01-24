@@ -23,12 +23,17 @@ spec:
           ports:
             - containerPort: 80
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivlegeEscalation: false
 
           volumeMounts:
-            - name: audiobookshelf-data
+            - name: audiobookshelf-config
               mountPath: /config
+            - name: audiobookshelf-audiobooks
+              mountPath: /audiobooks
       volumes:
-        - name: audiobookshelf-audiobooks-pvc
+        - name: audiobookshelf-config
           persistentVolumeClaim:
-            claimName: audiobookshelf-audiobooks-pvc
+            claimName: audiobookshelf-config-pvc
+        - name: audiobookshelf-audiobooks
+          persistentVolumeClaim:
+             claimName: audiobookshelf-audiobooks-pvc
