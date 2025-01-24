@@ -16,6 +16,7 @@ kind: PersistentVolumeClaim
 metadata:
  name: audiobookshelf-audiobooks-pvc
 spec:
+ storageClassName: nfs
  volumeName: audiobookshelf-audiobooks-pv
  accessModes:
    - ReadWriteOnce
