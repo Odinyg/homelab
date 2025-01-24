@@ -29,6 +29,6 @@ spec:
             - name: audiobookshelf-data
               mountPath: /config
       volumes:
-        - name: audiobookshelf-data
+        - name: audiobookshelf-audiobooks-pvc
           persistentVolumeClaim:
-            claimName: audiobookshelf-data-pvc
+            claimName: audiobookshelf-audiobooks-pvc
