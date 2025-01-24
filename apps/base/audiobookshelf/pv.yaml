@@ -18,6 +18,7 @@ kind: PersistentVolume
 metadata:
  name: audiobookshelf-audiobooks-pv
 spec:
+ storageClassName: nfs
  capacity:
    storage: 80Gi
  accessModes:
