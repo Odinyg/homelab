@@ -19,7 +19,7 @@ spec:
       #   runAsGroup: 1000
       containers:
         - name: audiobookshelf
-          image: advplyr/audiobookshelf:2.18.0
+          image: advplyr/audiobookshelf:2.18.1
           ports:
             - containerPort: 80
           securityContext:
