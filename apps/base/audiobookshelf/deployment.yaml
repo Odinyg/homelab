@@ -8,15 +8,16 @@ spec:
   selector:
     matchLabels:
       app: audiobookshelf
+
   template:
     metadata:
       labels:
         app: audiobookshelf
     spec:
-      # securityContext:
-      #   fsGroup: 1000
-      #   runAsUser: 1000
-      #   runAsGroup: 1000
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: audiobookshelf
           image: advplyr/audiobookshelf:2.18.1
@@ -30,6 +31,8 @@ spec:
               mountPath: /config
             - name: audiobookshelf-audiobooks
               mountPath: /audiobooks
+            - name: audiobookshelf-metadata
+              mountPath: /metadata
       volumes:
         - name: audiobookshelf-config
           persistentVolumeClaim:
@@ -37,3 +40,6 @@ spec:
         - name: audiobookshelf-audiobooks
           persistentVolumeClaim:
              claimName: audiobookshelf-audiobooks-pvc
+        - name: audiobookshelf-metadata
+          persistentVolumeClaim:
+             claimName: audiobookshelf-metadata-pvc

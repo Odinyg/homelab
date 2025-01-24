@@ -16,6 +16,21 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+ name: audiobookshelf-metadata-pv
+spec:
+ capacity:
+   storage: 1Gi
+ volumeMode: Filesystem
+ accessModes:
+   - ReadWriteOnce
+ persistentVolumeReclaimPolicy: Retain
+ storageClassName: local-path
+ hostPath:
+   path: /var/lib/rancher/k3s/storage/audiobookshelf/metadata
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
  name: audiobookshelf-audiobooks-pv
 spec:
  storageClassName: nfs

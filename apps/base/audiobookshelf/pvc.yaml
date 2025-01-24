@@ -23,3 +23,16 @@ spec:
  resources:
    requests:
      storage: 80Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: audiobookshelf-metadata-pvc
+spec:
+ storageClassName: local-path
+ volumeName: audiobookshelf-metadata-pv
+ accessModes:
+   - ReadWriteOnce
+ resources:
+   requests:
+     storage: 1Gi
