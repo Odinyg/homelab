@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: audiobookshelf-config-pvc
+spec:
+ storageClassName: local-path
+ volumeName: audiobookshelf-config-pv
+ accessModes:
+   - ReadWriteOnce
+ resources:
+   requests:
+     storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: audiobookshelf-audiobooks-pvc
+spec:
+ volumeName: audiobookshelf-audiobooks-pv
+ accessModes:
+   - ReadWriteOnce
+ resources:
+   requests:
+     storage: 80Gi
