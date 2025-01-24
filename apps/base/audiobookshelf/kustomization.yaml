@@ -6,6 +6,5 @@ resources:
   - pv.yaml
   - pvc.yaml
   - service.yaml
-  - configmap.yaml
 
 
