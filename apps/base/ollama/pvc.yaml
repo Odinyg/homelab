@@ -7,7 +7,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
-  volumeName: ollama-pv-local-config
+  volumeName: ollama-config-pv
   resources:
     requests:
       storage: 20Gi
