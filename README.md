@@ -12,6 +12,8 @@
 - make sure that the driver on you node is avaliable on https://download.nvidia.com/XFree86/Linux-x86_64/
 - all drivers are same version `sudo apt list --installed '*nvidia*'`
 
+### TODO
+- Move helm to code
 
 #### Links:
 https://github.com/NVIDIA/k8s-device-plugin
