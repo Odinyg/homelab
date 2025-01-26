@@ -19,8 +19,10 @@ spec:
        ports:
        - containerPort: 11434
        env:
-       - name: NVIDIA_DRIVER_CAPABILITIES
-         value: compute,utility
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: 'all'
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: 'all'
        volumeMounts:
        - name: ollama-data
          mountPath: /root/.ollama
