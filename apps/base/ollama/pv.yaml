@@ -4,7 +4,7 @@ metadata:
  name: ollama-config-pv
 spec:
  capacity:
-   storage: 1Gi
+   storage: 20Gi
  volumeMode: Filesystem
  accessModes:
    - ReadWriteOnce
