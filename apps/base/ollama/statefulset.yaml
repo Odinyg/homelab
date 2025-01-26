@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: ollama
+ namespace: ollama
+spec:
+ selector:
+   matchLabels:
+     app: ollama
+ template:
+   metadata:
+     labels:
+       app: ollama
+   spec:
+     runtimeClassName: nvidia
+     containers:
+     - name: ollama
+       image: ollama/ollama
+       ports:
+       - containerPort: 11434
+       volumeMounts:
+       - name: ollama-data
+         mountPath: /root/.ollama
+       - name: ollama-config
+         mountPath: /root/.config/ollama
+       resources:
+         limits:
+           nvidia.com/gpu: 1
+     volumes:
+     - name: ollama-data
+       persistentVolumeClaim:
+         claimName: ollama-pvc
+     - name: ollama-config
+       persistentVolumeClaim:
+         claimName: ollama-config-pvc
