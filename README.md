@@ -23,6 +23,11 @@ iscsiadm -m node -T <target-iqn> -p <qnap-ip> --login
 - Move helm to code
 - make ansible or terraform to init a new node with all that is needed on node
 
+
+### Note for later
+
+- Service.yaml and deploy have to match exactly cant have name and app on selector on one and only one on the other
+
 #### Links:
 https://github.com/NVIDIA/k8s-device-plugin
 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
