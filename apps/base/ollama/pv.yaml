@@ -27,7 +27,21 @@ spec:
  storageClassName: local-path
  hostPath:
    path: /mnt/slow/ollama
-# ---
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+ name: open-webui-pv
+spec:
+ capacity:
+   storage: 2Gi
+ volumeMode: Filesystem
+ accessModes:
+   - ReadWriteOnce
+ persistentVolumeReclaimPolicy: Retain
+ storageClassName: local-path
+ hostPath:
+   path: /var/lib/rancher/k3s/storage/open-webui/config
 # apiVersion: v1
 # kind: PersistentVolume
 # metadata:

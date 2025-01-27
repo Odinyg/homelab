@@ -20,3 +20,10 @@ spec:
         env:
         - name: OLLAMA_BASE_URLS
           value: "http://ollama"
+        volumeMounts:
+        - name: webui-volume
+          mountPath: /app/backend/data
+      volumes:
+      - name: webui-volume
+        persistentVolumeClaim:
+          claimName: open-webui-pvc
