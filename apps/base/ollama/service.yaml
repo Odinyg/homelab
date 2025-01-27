@@ -22,7 +22,6 @@ metadata:
 spec:
   selector:
     app: open-webui
-    name: open-webui
   type: NodePort
   ports:
   - port: 8080
