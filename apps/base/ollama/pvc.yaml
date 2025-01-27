@@ -23,3 +23,4 @@ spec:
    requests:
      storage: 1Ti
  storageClassName: local-path
+ volumeName: ollama-pv
