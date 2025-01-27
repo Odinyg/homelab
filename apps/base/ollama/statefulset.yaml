@@ -19,7 +19,9 @@ spec:
      - name: ollama
        image: ollama/ollama
        ports:
-       - containerPort: 11434
+        - name: http
+          containerPort: 11434
+          protocol: TCP
        env:
         - name: NVIDIA_DRIVER_CAPABILITIES
           value: 'all'
