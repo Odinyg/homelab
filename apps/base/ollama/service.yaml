@@ -17,11 +17,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-webui
+  name: open-webui
   namespace: ollama
 spec:
   selector:
-    name: webui
+    name: open-webui
 
   type: NodePort
   ports:
