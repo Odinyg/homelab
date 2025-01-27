@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: ollama
 resources:
   - ../../base/ollama/
+  - ingress.yaml
 
 
 
