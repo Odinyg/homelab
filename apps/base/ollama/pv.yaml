@@ -16,16 +16,31 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
- name: ollama-pv
+ name: ollama--pv
 spec:
  capacity:
-   storage: 600Gi
+   storage: 1Ti
+ volumeMode: Filesystem
  accessModes:
    - ReadWriteOnce
  persistentVolumeReclaimPolicy: Retain
- storageClassName: qnap-iscsi
- iscsi:
-   targetPortal: 192.168.1.153:3260
-   iqn: iqn.2004-04.com.qnap:ts-459uplus:iscsi.kubecsi.ca45e8
-   lun: 0
-   fsType: ext4
+ storageClassName: local-path
+ hostPath:
+   path: /mnt/slow/ollama
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#  name: ollama-pv
+# spec:
+#  capacity:
+#    storage: 600Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Retain
+#  storageClassName: qnap-iscsi
+#  iscsi:
+#    targetPortal: 192.168.1.153:3260
+#    iqn: iqn.2004-04.com.qnap:ts-459uplus:iscsi.kubecsi.ca45e8
+#    lun: 0
+#    fsType: ext4
