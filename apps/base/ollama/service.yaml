@@ -4,20 +4,27 @@ metadata:
   name: ollama
   namespace: ollama
 spec:
-  ports:
-  - port: 11434
-    targetPort: 11434
+  type: ClusterIP
   selector:
+    name: ollama
+  ports:
+  - port: 80
+    name: http
+    targetPort: http
+    protocol: TCP
     app: ollama
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: open-webui
+  name: web-webui
   namespace: ollama
 spec:
-  ports:
-  - port: 8080
-    targetPort: 8080
+  type: ClusterIP
   selector:
-    app: open-webui
+    name: webui
+  ports:
+  - port: 80
+    name: http
+    targetPort: http
+    protocol: TCP
