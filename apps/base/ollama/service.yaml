@@ -20,9 +20,10 @@ metadata:
   name: web-webui
   namespace: ollama
 spec:
-  type: ClusterIP
   selector:
     name: webui
+
+  type: NodePort
   ports:
   - port: 8080
     name: http
