@@ -32,6 +32,8 @@ spec:
          mountPath: /root/.ollama
        - name: ollama-config
          mountPath: /root/.config/ollama
+       securityContext:
+         privileged: true
        resources:
          limits:
            nvidia.com/gpu: 1
