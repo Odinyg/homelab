@@ -23,10 +23,10 @@ spec:
           containerPort: 11434
           protocol: TCP
        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
         - name: NVIDIA_DRIVER_CAPABILITIES
-          value: 'all'
-        - name: NVIDIA_VISIBLE_DEVICES
-          value: 'all'
+          value: "compute,video,utility"
        volumeMounts:
        - name: ollama-data
          mountPath: /root/.ollama
