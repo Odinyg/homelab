@@ -30,7 +30,7 @@ spec:
       dataStorage:
         enabled: true
         size: 10Gi
-        storageClass: "standard"
+        storageClass: "local-path"
       serviceAccount:
         create: true
         annotations: {}
