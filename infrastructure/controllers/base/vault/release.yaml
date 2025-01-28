@@ -39,6 +39,7 @@ spec:
       serviceType: ClusterIP  # Change to LoadBalancer or NodePort if needed
     ingress:
       enabled: true
+      ingressClassName: traefik
       hosts:
         - host: vault.pytt.io
           paths:
