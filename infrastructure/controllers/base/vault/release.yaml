@@ -24,8 +24,9 @@ spec:
       dev:
         enabled: true
       ha:
+        enabled: false
+      standalone:
         enabled: true
-        replicas: 3
       dataStorage:
         enabled: true
         size: 10Gi
