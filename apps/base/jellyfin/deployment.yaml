@@ -38,19 +38,19 @@ spec:
           value: "all"
         - name: NVIDIA_VISIBLE_DEVICES
           value: "all"
-        - name: JELLYFIN_PublishedServerUrl 
+        - name: JELLYFIN_PublishedServerUrl
           value: 192.168.1.52
         - name: PGID
-          value: "1000" 
+          value: "1000"
         - name: PUID
-          value: "1000" 
+          value: "1000"
         - name: TZ
           value: Europe/Amsterdam
         securityContext:
-          privileged: true 
+          privileged: true
           capabilities:
             add: ["SYS_ADMIN"]
-        image: ghcr.io/linuxserver/jellyfin
+        image: ghcr.io/linuxserver/jellyfin:10.10.5
         imagePullPolicy: Always
         name: jellyfin
         ports:

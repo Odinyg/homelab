@@ -41,4 +41,4 @@ spec:
  persistentVolumeReclaimPolicy: Retain
  nfs:
    server: 192.168.1.153
-   path: /server_new_media/audio/audiobooks
+   path: /server_new_media/media/audio/audiobooks
