@@ -36,15 +36,22 @@ spec:
         annotations: {}
     ui:
       enabled: true
+      serviceType: ClusterIP
+      serviceNodePort: null
+      externalPort: 8200
+      targetPort: 8200
     ingress:
       enabled: true
       ingressClassName: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+      pathType: Prefix
       hosts:
-          - vault.pytt.io
-      # tls:
-      #   - secretName: wildcard-tls-secret
-      #     hosts:
-      #       - vault.pytt.io
+       - host: vault.pytt.io
+      paths:
+        - path: /
+          pathType: Prefix
     injector:
       enabled: true
       replicas: 1
