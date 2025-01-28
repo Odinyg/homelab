@@ -22,7 +22,7 @@ spec:
   values:
     server:
       dev:
-        enabled: true
+        enabled: false
       ha:
         enabled: false
       standalone:
