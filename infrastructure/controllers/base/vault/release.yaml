@@ -46,4 +46,5 @@ spec:
               pathType: Prefix
     injector:
       enabled: true
-      replicas: 2
+      replicas: 1
+      affinity: {}
