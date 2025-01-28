@@ -40,10 +40,11 @@ spec:
       enabled: true
       ingressClassName: traefik
       hosts:
-        - host: vault.pytt.io
-          paths:
-            - path: /
-              pathType: Prefix
+          - vault.pytt.io
+      # tls:
+      #   - secretName: wildcard-tls-secret
+      #     hosts:
+      #       - vault.pytt.io
     injector:
       enabled: true
       replicas: 1
