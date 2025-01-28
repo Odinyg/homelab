@@ -13,7 +13,7 @@ spec:
               service:
                 name: vault
                 port:
-                  number: 3200
+                  number: 32000
             path: /
             pathType: Prefix
 
