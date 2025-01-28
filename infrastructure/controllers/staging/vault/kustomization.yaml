@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: vault
 resources:
   - ../../base/vault/
+  - ingress.yaml
 
 
 

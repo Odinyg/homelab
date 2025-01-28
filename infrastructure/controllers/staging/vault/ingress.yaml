@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: vault.pytt.io
+      http:
+        paths:
+          - backend:
+              service:
+                name: vault
+                port:
+                  number: 3200
+            path: /
+            pathType: Prefix
+
