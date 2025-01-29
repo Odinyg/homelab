@@ -1,0 +1,8 @@
+apiVersion: porsgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+  namespace: pg
+spec:
+  instances:3
+storage: 10Gi
