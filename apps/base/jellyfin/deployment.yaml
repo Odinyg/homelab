@@ -21,6 +21,8 @@ spec:
       labels:
         app: jellyfin
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: mainkube
       runtimeClassName: nvidia
       volumes:
       - name: jellyfin-config
@@ -65,10 +67,10 @@ spec:
           protocol: UDP
         - containerPort: 7359
           name: discovery-udp
-          protocol: UDP      
-          resources: 
+          protocol: UDP
+          resources:
             limits:
-              nvidia.com/gpu: "1" 
+              nvidia.com/gpu: "1"
             requests:
               nvidia.com/gpu: "1"
         stdin: true
