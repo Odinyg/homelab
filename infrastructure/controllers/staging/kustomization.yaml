@@ -6,5 +6,7 @@ resources:
   - renovate
   - pg
   - longhorn
+  - cert-manager
+
 
 
