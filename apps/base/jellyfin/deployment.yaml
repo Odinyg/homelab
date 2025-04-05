@@ -52,7 +52,7 @@ spec:
           privileged: true
           capabilities:
             add: ["SYS_ADMIN"]
-        image: ghcr.io/linuxserver/jellyfin:10.10.6
+        image: ghcr.io/linuxserver/jellyfin:10.10.7
         imagePullPolicy: Always
         name: jellyfin
         ports:
