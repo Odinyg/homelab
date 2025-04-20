@@ -39,7 +39,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: jellyfin-pv-smb-old-media
+  name: jellyfin-pv-nfs-media
   namespace: jellyfin
 spec:
   capacity:
@@ -48,70 +48,22 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - dir_mode=0777
-    - file_mode=0777
-    - noperm
-    - iocharset=utf8
-  csi:
-    driver: smb.csi.k8s.io
-    readOnly: false
-    volumeHandle: jellyfin-old-media-volume
-    volumeAttributes:
-      source: //192.168.1.153/server_old_media
-    nodeStageSecretRef:
-      name: smb-credentials
-      namespace: jellyfin
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: jellyfin-pv-smb-new-media
-  namespace: jellyfin
-spec:
-  capacity:
-    storage: 8Ti
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  mountOptions:
-    - dir_mode=0777
-    - file_mode=0777
-    - noperm
-    - iocharset=utf8
-  csi:
-    driver: smb.csi.k8s.io
-    readOnly: false
-    volumeHandle: jellyfin-new-media-volume
-    volumeAttributes:
-      source: //192.168.1.153/server_new_media
-    nodeStageSecretRef:
-      name: smb-credentials
-      namespace: jellyfin
+    - soft
+    - noatime
+  nfs:
+    server: 10.10.10.106
+    path: /mnt/pooltwo
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: jellyfin-pvc-old-media
+  name: jellyfin-pvc-media
   namespace: jellyfin
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Ti
-  volumeName: jellyfin-pv-smb-old-media
-  storageClassName: ""
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jellyfin-pvc-new-media
-  namespace: jellyfin
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Ti
-  volumeName: jellyfin-pv-smb-new-media
+      storage: 8Ti
+  volumeName: jellyfin-pv-nfs-media
   storageClassName: ""
