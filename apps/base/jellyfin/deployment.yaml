@@ -30,10 +30,7 @@ spec:
           claimName: jellyfin-config-pvc
       - name: jellyfin-media
         persistentVolumeClaim:
-          claimName: jellyfin-pvc-old-media
-      - name: jellyfin-new-media
-        persistentVolumeClaim:
-          claimName: jellyfin-pvc-new-media
+          claimName: jellyfin-pvc-media
       containers:
       - env:
         - name: NVIDIA_DRIVER_CAPABILITIES
@@ -80,7 +77,5 @@ spec:
           name: jellyfin-config
         - mountPath: /data/media
           name: jellyfin-media
-        - mountPath: /data/new_media
-          name: jellyfin-new-media
       dnsPolicy: ClusterFirst
       restartPolicy: Always
