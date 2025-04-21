@@ -52,7 +52,7 @@ spec:
     - noatime
   nfs:
     server: 10.10.10.106
-    path: /mnt/pooltwo
+    path: /mnt/pooltwo/Two
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
