@@ -43,7 +43,7 @@ metadata:
   namespace: jellyfin
 spec:
   capacity:
-    storage: 8Ti
+    storage: 16Ti
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
@@ -52,7 +52,7 @@ spec:
     - noatime
   nfs:
     server: 10.10.10.106
-    path: /mnt/pooltwo/Two
+    path: /mnt/big/media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
