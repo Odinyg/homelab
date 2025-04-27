@@ -64,6 +64,6 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 8Ti
+      storage: 16Ti
   volumeName: jellyfin-pv-nfs-media
   storageClassName: ""
