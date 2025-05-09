@@ -8,9 +8,6 @@
 `sudo nvidia-ctk runtime configure --runtime=containerd --config=/var/lib/rancher/k3s/agent/etc/containerd/config.toml`
 
 `sudo asystemctl restart k3s`
-### For headless steam:
-- make sure that the driver on you node is avaliable on https://download.nvidia.com/XFree86/Linux-x86_64/
-- all drivers are same version `sudo apt list --installed '*nvidia*'`
 
 
 ### ISCSI install on nodepc
@@ -20,8 +17,8 @@ systemctl enable --now iscsid
 iscsiadm -m discovery -t sendtargets -p <qnap-ip>
 iscsiadm -m node -T <target-iqn> -p <qnap-ip> --login
 ### TODO
-- Move helm to code
-- make ansible or terraform to init a new node with all that is needed on node
+- Tailscale ingress
+- Siem
 
 
 ### Note for later
