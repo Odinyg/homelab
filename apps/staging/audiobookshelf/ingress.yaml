@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: a.pytt.io
+      http:
+        paths:
+          - backend:
+              service:
+                name: audiobookshelf
+                port:
+                  number: 8096
+            path: /
+            pathType: Prefix
+
