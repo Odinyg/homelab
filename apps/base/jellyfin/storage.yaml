@@ -51,7 +51,7 @@ spec:
     - soft
     - noatime
   nfs:
-    server: 10.10.10.106
+    server: 10.10.10.20
     path: /mnt/big/media
 ---
 apiVersion: v1
