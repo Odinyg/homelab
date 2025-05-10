@@ -37,8 +37,6 @@ spec:
           value: "all"
         - name: NVIDIA_VISIBLE_DEVICES
           value: "all"
-        - name: JELLYFIN_PublishedServerUrl
-          value: 192.168.1.52
         - name: PGID
           value: "1000"
         - name: PUID
