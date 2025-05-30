@@ -21,6 +21,7 @@ spec:
     remediation:
       retries: 3
   values:
+    replicaCount: 1
     image:
       repository: nextcloud
       tag: "30.0.4"
