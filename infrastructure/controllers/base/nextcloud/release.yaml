@@ -46,19 +46,19 @@ spec:
           secretName: db
           usernameKey: user
           passwordKey: password
-      configs:
-        redis.config.php: |-
-          <?php
-          $CONFIG = array (
-            'memcache.local' => '\OC\Memcache\APCu',
-            'memcache.distributed' => '\OC\Memcache\Redis',
-            'memcache.locking' => '\OC\Memcache\Redis',
-            'redis' => array(
-              'host' => 'nextcloud-redis-master',
-              'port' => 6379,
-              'password' => getenv('REDIS_HOST_PASSWORD'),
-            ),
-          );
+      # configs:
+      #   redis.config.php: |-
+      #     <?php
+      #     $CONFIG = array (
+      #       'memcache.local' => '\OC\Memcache\APCu',
+      #       'memcache.distributed' => '\OC\Memcache\Redis',
+      #       'memcache.locking' => '\OC\Memcache\Redis',
+      #       'redis' => array(
+      #         'host' => 'nextcloud-redis-master',
+      #         'port' => 6379,
+      #         'password' => getenv('REDIS_HOST_PASSWORD'),
+      #       ),
+      #     );
     redis:
       enabled: true
       auth:
