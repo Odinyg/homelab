@@ -31,7 +31,7 @@ spec:
       # Password will be set via secret
       existingSecret:
         enabled: true
-        secretName: user
+        secretName: db 
         usernameKey: user
         passwordKey: password
       
@@ -43,7 +43,7 @@ spec:
         existingSecret:
           enabled: true
           secretName: db
-          usernameKey: user
+          usernameKey: db 
           passwordKey: password
       # configs:
       #   redis.config.php: |-

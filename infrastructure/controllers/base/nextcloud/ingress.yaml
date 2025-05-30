@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: nextcloud.pytt.io
+      http:
+        paths:
+          - backend:
+              service:
+                name: nextcloud
+                port:
+                  number: 8080  # This should be 8080, not 80
+            path: /
+            pathType: Prefix
+  tls:
+    - secretName: wildcard-tls-secret
+      hosts:
+        - nextcloud.pytt.io
