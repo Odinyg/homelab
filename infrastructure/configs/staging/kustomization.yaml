@@ -3,7 +3,8 @@ kind: Kustomization
 resources:
   - kube-prometheus-stack
   - operators/pg/
-  - ./operators/hashicorp/
+  - operators/hashicorp/
+  - shared/
 
 
 
