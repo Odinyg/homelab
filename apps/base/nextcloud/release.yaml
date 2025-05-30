@@ -31,7 +31,7 @@ spec:
       # Password will be set via secret
       existingSecret:
         enabled: true
-        secretName: user-secret
+        secretName: user
         usernameKey: user
         passwordKey: password
       
@@ -42,7 +42,7 @@ spec:
         database: nextcloud
         existingSecret:
           enabled: true
-          secretName: db-secret
+          secretName: db
           usernameKey: user
           passwordKey: password
       configs:
@@ -62,7 +62,7 @@ spec:
       enabled: true
       auth:
         enabled: true
-        existingSecret: db-secret
+        existingSecret: db
         existingSecretPasswordKey: password
       master:
         persistence:
