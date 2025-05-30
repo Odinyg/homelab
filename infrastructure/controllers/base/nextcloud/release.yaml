@@ -23,7 +23,7 @@ spec:
     replicaCount: 1
     image:
       repository: nextcloud
-      tag: "30.0.4"
+      tag: "31.0.5"
     
     nextcloud:
       host: nextcloud.pytt.io
