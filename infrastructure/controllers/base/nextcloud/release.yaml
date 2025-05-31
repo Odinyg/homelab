@@ -45,6 +45,7 @@ spec:
           secretName: db
           usernameKey: user
           passwordKey: password
+
       # configs:
       #   redis.config.php: |-
       #     <?php
@@ -76,21 +77,6 @@ spec:
           limits:
             cpu: 250m
             memory: 256Mi
-    ingress:
-      enabled: true
-      className: traefik
-      annotations:
-        traefik.ingress.kubernetes.io/router.middlewares: "default-redirect-https@kubernetescrd"
-      hosts:
-        - host: nextcloud.pytt.io
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - secretName: wildcard-tls-secret
-          hosts:
-            - nextcloud.pytt.io
-    
     persistence:
       enabled: true
       storageClass: "local-path"
@@ -103,4 +89,4 @@ spec:
         memory: 512Mi
       limits:
         cpu: 1000m
-        memory: 1Gi
+        memory: 4Gi
