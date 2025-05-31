@@ -23,16 +23,15 @@ spec:
     replicaCount: 1
     image:
       repository: nextcloud
-      tag: "30.0.10"
+      tag: "31.0.5"
     nextcloud:
       host: nextcloud.pytt.io
-      username: admin
       trustedDomains: ["nextcloud.pytt.io", "10.10.10.106"]
       # Password will be set via secret
     existingSecret:
       enabled: true
-      secretName: db
-      usernameKey: user
+      secretName: user
+      usernameKey: username
       passwordKey: password
     internalDatabase:
       enabled: false
@@ -48,19 +47,6 @@ spec:
         usernameKey: user
         passwordKey: password
 
-      # configs:
-      #   redis.config.php: |-
-      #     <?php
-      #     $CONFIG = array (
-      #       'memcache.local' => '\OC\Memcache\APCu',
-      #       'memcache.distributed' => '\OC\Memcache\Redis',
-      #       'memcache.locking' => '\OC\Memcache\Redis',
-      #       'redis' => array(
-      #         'host' => 'nextcloud-redis-master',
-      #         'port' => 6379,
-      #         'password' => getenv('REDIS_HOST_PASSWORD'),
-      #       ),
-      #     );
     redis:
       enabled: true
       auth:
