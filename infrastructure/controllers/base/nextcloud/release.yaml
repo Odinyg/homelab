@@ -43,7 +43,7 @@ spec:
         existingSecret:
           enabled: true
           secretName: db
-          usernameKey: db
+          usernameKey: user
           passwordKey: password
       # configs:
       #   redis.config.php: |-
