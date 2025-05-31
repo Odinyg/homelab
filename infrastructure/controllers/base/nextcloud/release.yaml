@@ -24,17 +24,17 @@ spec:
     image:
       repository: nextcloud
       tag: "31.0.5"
-    
     nextcloud:
       host: nextcloud.pytt.io
       username: admin
       # Password will be set via secret
       existingSecret:
         enabled: true
-        secretName: db 
+        secretName: db
         usernameKey: user
         passwordKey: password
-      internalDatabase.enabled: false 
+      internalDatabase:
+        enabled: false
       externalDatabase:
         enabled: true
         type: postgresql
