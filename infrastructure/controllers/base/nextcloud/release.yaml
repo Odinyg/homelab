@@ -27,6 +27,7 @@ spec:
     nextcloud:
       host: nextcloud.pytt.io
       username: admin
+      trustedDomains: ["nextcloud.pytt.io", "10.10.10.106"]
       # Password will be set via secret
     existingSecret:
       enabled: true
@@ -35,6 +36,7 @@ spec:
       passwordKey: password
     internalDatabase:
       enabled: false
+
     externalDatabase:
       enabled: true
       type: postgresql
