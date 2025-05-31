@@ -25,6 +25,28 @@ spec:
       repository: nextcloud
       tag: "31.0.5"
     nextcloud:
+      configs:
+        custom.config.php: |-
+          <?php
+          $CONFIG = array (
+            'overwriteprotocol' => 'https',
+            'overwrite.cli.url' => 'https://nextcloud.pytt.io',
+            'trusted_domains' => array(
+              'nextcloud.pytt.io',
+              'nextcloud',
+            ),
+            'maintenance_window_start' => 1,
+            'default_phone_region' => 'NO',
+            'memcache.local' => '\OC\Memcache\APCu',
+            'memcache.distributed' => '\OC\Memcache\Redis',
+            'memcache.locking' => '\OC\Memcache\Redis',
+            'redis' => array(
+              'host' => 'nextcloud-redis-master',
+              'port' => 6379,
+              'password' => getenv('REDIS_HOST_PASSWORD'),
+            ),
+          );
+
       host: nextcloud.pytt.io
       trustedDomains: ["nextcloud.pytt.io", "10.10.10.106"]
       # Password will be set via secret
