@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: kubernetes-replicator
-      version: "2.9.2"  # Check for latest version
+      version: "2.11.1"  # Check for latest version
       sourceRef:
         kind: HelmRepository
         name: mittwald
