@@ -4,6 +4,7 @@ namespace: linkding
 resources:
   - ../../base/linkding
   - cloudflare.yaml
+  - network-config.yaml
 
 
 

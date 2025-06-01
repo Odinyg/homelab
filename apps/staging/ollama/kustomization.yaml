@@ -4,6 +4,7 @@ namespace: ollama
 resources:
   - ../../base/ollama/
   - ingress.yaml
+  - network-config.yaml
 
 
 

@@ -4,6 +4,7 @@ namespace: audiobookshelf
 resources:
   - ../../base/audiobookshelf
   - ./ingress.yaml
+  - network-config.yaml
 
 
 
