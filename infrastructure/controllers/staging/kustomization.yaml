@@ -4,7 +4,6 @@ resources:
   - kube-prometheus-stack
   - vault
   - renovate
-  - pg
   - longhorn
   - cert-manager
   - nextcloud
