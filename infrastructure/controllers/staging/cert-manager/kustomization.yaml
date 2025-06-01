@@ -4,5 +4,3 @@ kind: Kustomization
 namespace: cert-manager
 resources:
   - ../../base/cert-manager/
-#  - ingress.yaml
-  - network-config.yaml

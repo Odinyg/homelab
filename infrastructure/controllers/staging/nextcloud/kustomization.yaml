@@ -5,5 +5,4 @@ namespace: nextcloud
 resources:
   - ../../base/nextcloud/
   - ingress.yaml
-  - network-config.yaml
   - db-secret.yaml

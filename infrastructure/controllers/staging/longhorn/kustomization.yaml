@@ -4,7 +4,6 @@ namespace: longhorn-system
 resources:
   - ../../base/longhorn/
   - ingress.yaml
-  - network-config.yaml
 
 
 

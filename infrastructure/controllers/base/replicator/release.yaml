@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubernetes-replicator
+  namespace: replicator
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kubernetes-replicator
+      version: "2.9.2"  # Check for latest version
+      sourceRef:
+        kind: HelmRepository
+        name: mittwald
+        namespace: replicator
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
