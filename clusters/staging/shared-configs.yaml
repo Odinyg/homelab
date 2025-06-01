@@ -4,12 +4,16 @@ metadata:
   name: shared-configs
   namespace: flux-system
 spec:
-  interval: 10m
-  path: "./infrastructure/configs/shared"
-  prune: true
+  interval: 11m0s
+  retryInterval: 1m
+  timeout: 5m
   sourceRef:
     kind: GitRepository
     name: flux-system
+  path: ./infrastructure/configs/shared
+  prune: true
   targetNamespace: default
-  dependsOn:
-    - name: replicator
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
