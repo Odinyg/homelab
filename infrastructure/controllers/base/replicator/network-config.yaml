@@ -13,6 +13,8 @@ kind: Secret
 metadata:
     creationTimestamp: null
     name: network-config
+    annotations:
+      replicator.v1.mittwald.de/replicate-to: "jellyfin,ollama,audiobookshelf,linkding,monitoring"
 sops:
     age:
         - recipient: age1sy97xhs7my3793xjeyggvam25qhdv63f05h3f3ftevqfkjsh7cpqapg6f2
