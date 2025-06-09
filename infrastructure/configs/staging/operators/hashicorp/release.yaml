@@ -17,3 +17,4 @@ spec:
     server:
       dev:
         enabled: true
+      replicas: 0

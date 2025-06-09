@@ -1,0 +1,17 @@
+# .sops.yaml - Place this in the root of your homelab repository
+creation_rules:
+  - path_regex: \.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1sy97xhs7my3793xjeyggvam25qhdv63f05h3f3ftevqfkjsh7cpqapg6f2
+  
+  - path_regex: secrets/.*\.yaml$
+    encrypted_regex: ^(data|stringData|password|token|key|secret)$
+    age: age1sy97xhs7my3793xjeyggvam25qhdv63f05h3f3ftevqfkjsh7cpqapg6f2
+  
+  - path_regex: apps/.*/.*secret.*\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1sy97xhs7my3793xjeyggvam25qhdv63f05h3f3ftevqfkjsh7cpqapg6f2
+  
+  - path_regex: infrastructure/.*/.*secret.*\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1sy97xhs7my3793xjeyggvam25qhdv63f05h3f3ftevqfkjsh7cpqapg6f2
