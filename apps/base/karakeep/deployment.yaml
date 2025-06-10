@@ -27,6 +27,17 @@ spec:
                 name: karakeep-config
             - secretRef:
                 name: karakeep-secrets
+          env:
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: karakeep-secrets
+                  key: NEXTAUTH_SECRET
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: karakeep-secrets
+                  key: MEILI_MASTER_KEY
           volumeMounts:
             - name: karakeep-data
               mountPath: /app/data
