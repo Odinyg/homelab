@@ -13,10 +13,10 @@ spec:
       labels:
         app: karakeep-web
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
-        runAsGroup: 1000
+      # securityContext:
+      #   fsGroup: 1000
+      #   runAsUser: 1000
+      #   runAsGroup: 1000
       containers:
         - name: web
           image: ghcr.io/hoarder-app/hoarder:release
