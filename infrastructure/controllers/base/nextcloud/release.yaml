@@ -23,7 +23,7 @@ spec:
     replicaCount: 1
     image:
       repository: nextcloud
-      tag: "31.0.5"
+      tag: "31.0.6"
     nextcloud:
       configs:
         custom.config.php: |-
