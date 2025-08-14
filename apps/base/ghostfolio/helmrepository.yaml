@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: ghostfolio
+  namespace: ghostfolio
+spec:
+  interval: 24h
+  url: https://bythehugo.github.io/ghostfolio-helm/
