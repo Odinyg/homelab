@@ -13,42 +13,31 @@ spec:
       labels:
         app: karakeep-web
     spec:
-      # securityContext:
-      #   fsGroup: 1000
-      #   runAsUser: 1000
-      #   runAsGroup: 1000
-      containers:
-        - name: web
-          image: ghcr.io/hoarder-app/hoarder:release
-          ports:
-            - containerPort: 3000
-          envFrom:
-            - configMapRef:
-                name: karakeep-config
-            - secretRef:
-                name: karakeep-secrets
-          env:
-            - name: NEXTAUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: karakeep-secrets
-                  key: NEXTAUTH_SECRET
-            - name: MEILI_MASTER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: karakeep-secrets
-                  key: MEILI_MASTER_KEY
-          volumeMounts:
-            - name: karakeep-data
-              mountPath: /app/data
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 1000m
-              memory: 1024Mi
       volumes:
+      - name: karakeep-data
+        persistentVolumeClaim:
+          claimName: karakeep-data-pvc
+      containers:
+      - name: karakeep
+        image: ghcr.io/hoarder-app/hoarder:0.20.0
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: karakeep-config
+        - secretRef:
+            name: karakeep-secrets
+        env:
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-secrets
+              key: NEXTAUTH_SECRET
+        - name: MEILI_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-secrets
+              key: MEILI_MASTER_KEY
+        volumeMounts:
         - name: karakeep-data
-          persistentVolumeClaim:
-            claimName: karakeep-data-pvc
+          mountPath: /app/data

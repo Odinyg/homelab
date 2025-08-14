@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: linkding
 spec:
-  #
   replicas: 1
   selector:
     matchLabels:
@@ -17,18 +16,17 @@ spec:
         fsGroup: 33
         runAsUser: 33
         runAsGroup: 33
-      containers:
-        - name: linkding
-          image: sissbruecker/linkding:1.41.0
-          ports:
-            - containerPort: 9090
-          securityContext:
-            allowPrivlegeEscalation: false
-
-          volumeMounts:
-            - name: linkding-data
-              mountPath: /etc/linkding/data
       volumes:
+      - name: linkding-data
+        persistentVolumeClaim:
+          claimName: linkding-data-pvc
+      containers:
+      - name: linkding
+        image: sissbruecker/linkding:1.41.0
+        ports:
+        - containerPort: 9090
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
         - name: linkding-data
-          persistentVolumeClaim:
-            claimName: linkding-data-pvc
+          mountPath: /etc/linkding/data

@@ -1,28 +1,35 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
- name: ollama
- namespace: ollama
+  name: ollama
 spec:
- selector:
-   matchLabels:
-     app: ollama
- template:
-   metadata:
-     labels:
-       app: ollama
-   spec:
-     runtimeClassName: nvidia
-     nodeName: mainkube
-     hostNetwork: true
-     containers:
-     - name: ollama
-       image: ollama/ollama:0.11.4
-       ports:
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/gpu: "true"
+      runtimeClassName: nvidia
+      hostNetwork: true
+      volumes:
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-pvc
+      - name: ollama-config
+        persistentVolumeClaim:
+          claimName: ollama-config-pvc
+      containers:
+      - name: ollama
+        image: ollama/ollama:0.5.1
+        ports:
         - name: ollama-http
           containerPort: 11434
           protocol: TCP
-       env:
+        env:
         - name: PATH
           value: /usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         - name: LD_LIBRARY_PATH
@@ -31,22 +38,15 @@ spec:
           value: "0"
         - name: NVIDIA_DRIVER_CAPABILITIES
           value: "compute,video,utility"
-       volumeMounts:
-       - name: ollama-data
-         mountPath: /root/.ollama
-       - name: ollama-config
-         mountPath: /root/.config/ollama
-       securityContext:
-         privileged: true
-       resources:
-         requests:
-           nvidia.com/gpu: 1
-         limits:
-           nvidia.com/gpu: 1
-     volumes:
-     - name: ollama-data
-       persistentVolumeClaim:
-         claimName: ollama-pvc
-     - name: ollama-config
-       persistentVolumeClaim:
-        claimName: ollama-config-pvc
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama
+        - name: ollama-config
+          mountPath: /root/.config/ollama

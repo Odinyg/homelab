@@ -4,7 +4,6 @@ metadata:
   labels:
     app: jellyfin
   name: jellyfin
-  namespace: jellyfin
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
@@ -22,7 +21,7 @@ spec:
         app: jellyfin
     spec:
       nodeSelector:
-        kubernetes.io/hostname: mainkube
+        node-role.kubernetes.io/gpu: "true"
       runtimeClassName: nvidia
       volumes:
       - name: jellyfin-config
@@ -32,7 +31,10 @@ spec:
         persistentVolumeClaim:
           claimName: jellyfin-pvc-media
       containers:
-      - env:
+      - name: jellyfin
+        image: ghcr.io/linuxserver/jellyfin:10.10.7
+        imagePullPolicy: Always
+        env:
         - name: NVIDIA_DRIVER_CAPABILITIES
           value: "all"
         - name: NVIDIA_VISIBLE_DEVICES
@@ -42,14 +44,11 @@ spec:
         - name: PUID
           value: "1000"
         - name: TZ
-          value: Europe/Amsterdam
+          value: "${TZ:-UTC}"
         securityContext:
           privileged: true
           capabilities:
             add: ["SYS_ADMIN"]
-        image: ghcr.io/linuxserver/jellyfin:10.10.7
-        imagePullPolicy: Always
-        name: jellyfin
         ports:
         - containerPort: 8096
           name: http-tcp
@@ -63,11 +62,11 @@ spec:
         - containerPort: 7359
           name: discovery-udp
           protocol: UDP
-          resources:
-            limits:
-              nvidia.com/gpu: "1"
-            requests:
-              nvidia.com/gpu: "1"
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
         stdin: true
         tty: true
         volumeMounts:

@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: open-webui
-  namespace: ollama
 spec:
   selector:
     matchLabels:
@@ -12,9 +11,13 @@ spec:
       labels:
         app: open-webui
     spec:
+      volumes:
+      - name: webui-volume
+        persistentVolumeClaim:
+          claimName: open-webui-pvc
       containers:
       - name: open-webui
-        image: ghcr.io/open-webui/open-webui:main
+        image: ghcr.io/open-webui/open-webui:0.4.8
         ports:
         - containerPort: 8080
         env:
@@ -23,7 +26,3 @@ spec:
         volumeMounts:
         - name: webui-volume
           mountPath: /app/backend/data
-      volumes:
-      - name: webui-volume
-        persistentVolumeClaim:
-          claimName: open-webui-pvc
