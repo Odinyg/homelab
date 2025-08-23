@@ -12,7 +12,7 @@ spec:
         app: ollama
     spec:
       nodeSelector:
-        node-role.kubernetes.io/gpu: "true"
+        nvidia.com/gpu: "true"
       runtimeClassName: nvidia
       hostNetwork: true
       volumes:
