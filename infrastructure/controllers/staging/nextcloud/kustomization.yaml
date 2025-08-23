@@ -4,5 +4,4 @@ kind: Kustomization
 namespace: nextcloud
 resources:
   - ../../base/nextcloud/
-  - ingress.yaml
   - db-secret.yaml
