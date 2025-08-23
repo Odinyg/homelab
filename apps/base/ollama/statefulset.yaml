@@ -13,7 +13,7 @@ spec:
     spec:
       nodeSelector:
         nvidia.com/gpu: "true"
-      runtimeClassName: nvidia
+      runtimeClassName: nvidia-experimental
       hostNetwork: true
       volumes:
       - name: ollama-data
