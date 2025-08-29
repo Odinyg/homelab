@@ -39,7 +39,8 @@ spec:
         - name: NVIDIA_DRIVER_CAPABILITIES
           value: "compute,video,utility"
         securityContext:
-          allowPrivilegeEscalation: false
+          privileged: true
+          allowPrivilegeEscalation: true
           runAsNonRoot: false
         resources:
           requests:
