@@ -5,6 +5,8 @@ metadata:
   name: longhorn-release
   namespace: longhorn-system
 spec:
+  # How often to check for chart updates in the HelmRepository
+  interval: 30m
   chart:
     spec:
       chart: longhorn
@@ -13,8 +15,8 @@ spec:
         kind: HelmRepository
         name: longhorn-repo
       version: 1.10.0
+      # How often to fetch chart metadata from the repository
       interval: 12h
-  interval: 30m
   install:
     remediation:
       retries: 3
