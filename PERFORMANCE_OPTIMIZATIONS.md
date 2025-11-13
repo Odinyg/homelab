@@ -52,8 +52,8 @@ This document describes the performance optimizations implemented in the homelab
 - Failure threshold: 3
 
 **Probe Endpoints Used:**
-- ollama: `/` (root path)
-- open-webui: `/health` (standard health endpoint)
+- ollama: `/api/version` (liveness), `/api/tags` (readiness) - documented Ollama API endpoints
+- open-webui: `/` (root path - standard for web apps)
 - audiobookshelf: `/ping` (documented health check)
 - linkding: `/` (root path - reliable connectivity check)
 - karakeep-web: `/` (root path - Next.js app)
@@ -287,8 +287,9 @@ kubectl top nodes
 ### 2. Application Response Times
 ```bash
 # Test response time for each app
-time curl -s http://linkding.pytt.io/health > /dev/null
+time curl -s http://linkding.pytt.io/ > /dev/null
 time curl -s http://gr.pytt.io > /dev/null
+time curl -s http://ollama:11434/api/version > /dev/null
 ```
 
 ### 3. Flux Reconciliation
