@@ -51,6 +51,14 @@ This document describes the performance optimizations implemented in the homelab
 - Timeout: 3-5 seconds
 - Failure threshold: 3
 
+**Probe Endpoints Used:**
+- ollama: `/` (root path)
+- open-webui: `/health` (standard health endpoint)
+- audiobookshelf: `/ping` (documented health check)
+- linkding: `/` (root path - reliable connectivity check)
+- karakeep-web: `/` (root path - Next.js app)
+- meilisearch: `/health` (standard health endpoint)
+
 **Benefits:**
 - Automatic detection and restart of failed containers
 - Prevention of traffic to unhealthy pods

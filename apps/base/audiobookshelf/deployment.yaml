@@ -42,7 +42,7 @@ spec:
             memory: 1Gi
         livenessProbe:
           httpGet:
-            path: /healthcheck
+            path: /ping
             port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -50,7 +50,7 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /healthcheck
+            path: /ping
             port: 80
           initialDelaySeconds: 10
           periodSeconds: 5

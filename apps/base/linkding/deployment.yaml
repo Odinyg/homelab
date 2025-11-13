@@ -36,7 +36,7 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /health
+            path: /
             port: 9090
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -44,7 +44,7 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /health
+            path: /
             port: 9090
           initialDelaySeconds: 10
           periodSeconds: 5
