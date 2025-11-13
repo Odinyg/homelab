@@ -44,9 +44,29 @@ spec:
           runAsNonRoot: false
         resources:
           requests:
+            cpu: 500m
+            memory: 2Gi
             nvidia.com/gpu: 1
           limits:
+            cpu: 2000m
+            memory: 8Gi
             nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /
+            port: ollama-http
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: ollama-http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
         - name: ollama-data
           mountPath: /root/.ollama
