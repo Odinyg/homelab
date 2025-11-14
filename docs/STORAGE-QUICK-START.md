@@ -108,13 +108,53 @@ SQLite databases can experience corruption due to NFS file locking issues, espec
    - Migrate app data from SQLite to PostgreSQL
    - ✅ Scales better, more reliable
 
+### What if Node with SQLite Dies?
+
+**Problem:** SQLite on local-path means data tied to one node. If node dies, app can't start elsewhere.
+
+**Solution 1: Longhorn Replication** (Best for critical apps)
+```yaml
+storageClassName: longhorn  # Replicates across 3 nodes
+```
+- ✅ **Automatic failover** - Pod reschedules to healthy node with data intact
+- ✅ **0 data loss** - Longhorn keeps 3 copies across nodes
+- ✅ **No NFS** - Block storage, no file locking issues
+- ⚠️ **Cost**: 3x storage usage, moderate complexity
+- **RTO**: 2-5 minutes
+- **RPO**: 0 (no data loss)
+
+**Solution 2: Automated Backups** (Good for less critical apps)
+```yaml
+# CronJob backing up every 6 hours to TrueNAS
+storageClassName: local-path
+```
+- ✅ **Simple** - Just a backup CronJob
+- ✅ **Low cost** - Only backup storage needed
+- ⚠️ **Manual restore** - Need to restore from backup
+- ⚠️ **Data loss window** - Lose up to 6 hours of data
+- **RTO**: 15 minutes (with automation)
+- **RPO**: 6 hours (backup interval)
+
+**Solution 3: Migrate to PostgreSQL** (Best long-term)
+```yaml
+# Run PostgreSQL on TrueNAS NFS
+# Change app to use PostgreSQL instead of SQLite
+```
+- ✅ **Works on NFS** - No locking issues
+- ✅ **Scales better** - Multi-node compatible
+- ⚠️ **Migration effort** - One-time data migration
+- **RTO**: 2 minutes
+- **RPO**: 0 (no data loss)
+
 ### Recommended Per App
 
-- **Linkding**: Keep SQLite on local-path + nightly backup script to TrueNAS
-- **Audiobookshelf**: Keep config/metadata on local-path, media on TrueNAS NFS
-- **Ollama**: Safe to use TrueNAS NFS (doesn't use SQLite)
+| App | Criticality | Strategy | Reason |
+|-----|-------------|----------|--------|
+| **Linkding** | High (bookmarks) | **Longhorn replication** | User data, frequent writes |
+| **Audiobookshelf** | Medium | Backup every 4h | Metadata can rebuild from media |
+| **Dev/Test** | Low | local-path only | OK to rebuild |
 
-**Bottom line**: Don't put SQLite databases on NFS. Use local-path or migrate to PostgreSQL.
+**Bottom line**: Critical SQLite apps → Longhorn. Less critical → local-path + backups. Best → PostgreSQL.
 
 ## Three-Step Getting Started
 
@@ -259,6 +299,47 @@ SQLite uses file-level locking that doesn't work reliably over NFS:
 1. Keep SQLite apps on local-path + backup to NFS
 2. Use Longhorn for replication (if needed)
 3. Migrate app to PostgreSQL (best long-term)
+
+### Q: What if my node with SQLite database dies?
+
+**A: Three options, depending on criticality.**
+
+**Critical apps (can't lose data):**
+- ✅ Use **Longhorn replication** across 3 nodes
+- Pod automatically reschedules to healthy node
+- Data intact via replicated volume
+- RTO: 2-5 minutes, RPO: 0 (no data loss)
+
+**Important apps (some data loss OK):**
+- ✅ Use **automated backups** to TrueNAS (CronJob every 4-6 hours)
+- Restore from latest backup when node fails
+- RTO: 15 minutes, RPO: 4-6 hours
+
+**Low priority apps:**
+- ✅ Accept rebuild from scratch or daily backup
+- RTO: 30 minutes, RPO: 24 hours
+
+**Example Longhorn setup for Linkding:**
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: linkding-data-pvc
+spec:
+  storageClassName: longhorn  # Replicates across nodes
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+**What happens when node fails:**
+1. Kubernetes detects node down
+2. Pod reschedules to healthy node (30-60 seconds)
+3. Longhorn attaches volume with replicated data
+4. App starts with all data intact
+5. Total downtime: 2-5 minutes
 
 ### Q: Won't NFS be slow?
 

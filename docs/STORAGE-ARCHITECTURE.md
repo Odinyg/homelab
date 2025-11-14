@@ -206,6 +206,303 @@ spec:
 | Ollama | File-based | TrueNAS NFS (models are just files) | N/A |
 | Karakeep | Unknown | Verify database type first | If SQLite, use local-path |
 
+## SQLite Disaster Recovery Strategies
+
+### The Node Failure Problem
+
+When SQLite databases are on local-path storage:
+- ✅ **Safe from NFS corruption** - No locking issues
+- ❌ **Not resilient to node failure** - If node dies, app can't restart on another node
+- ❌ **Data loss risk** - If node disk fails completely, database is lost
+
+**Question:** How to protect SQLite databases from node failures without using NFS?
+
+### Solution Comparison
+
+| Strategy | Data Safety | Node Failure Recovery | Complexity | Cost |
+|----------|-------------|----------------------|------------|------|
+| **local-path + backups** | ⚠️ Manual restore | ❌ Manual | Low | Low |
+| **Longhorn replication** | ✅ Automatic | ✅ Automatic | Medium | Medium |
+| **PostgreSQL migration** | ✅ NFS + backups | ✅ Automatic | High | Low |
+| **Regular snapshots** | ✅ Point-in-time | ⚠️ Data loss window | Low | Low |
+
+### Recommended Approach: Longhorn for Critical SQLite Apps
+
+**When to use Longhorn:**
+- SQLite app is critical (downtime/data loss unacceptable)
+- Need automatic failover to other nodes
+- Willing to accept moderate complexity
+
+**How Longhorn solves the problem:**
+1. **Replicates SQLite database** across 3 nodes (configurable)
+2. **No NFS involved** - Block storage, not file-based
+3. **Automatic failover** - If node fails, pod reschedules with data intact
+4. **No corruption risk** - Direct block replication, not file locking
+
+#### Longhorn Configuration for SQLite
+
+```yaml
+# infrastructure/controllers/base/longhorn/storage-class.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-sqlite
+parameters:
+  numberOfReplicas: "3"  # Replicate across 3 nodes
+  staleReplicaTimeout: "2880"  # 48 hours
+  fromBackup: ""
+  fsType: "ext4"
+  dataLocality: "disabled"  # Allow scheduling on any node
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+```
+
+#### Using Longhorn for SQLite Apps
+
+**Linkding example:**
+```yaml
+# apps/base/linkding/storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: linkding-data-pvc
+  namespace: linkding
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-sqlite  # ✅ Replicated across nodes
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+**Deployment configuration:**
+```yaml
+# apps/base/linkding/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding
+spec:
+  replicas: 1  # Single replica (SQLite limitation)
+  selector:
+    matchLabels:
+      app: linkding
+  template:
+    metadata:
+      labels:
+        app: linkding
+    spec:
+      # No node affinity needed - Longhorn handles failover
+      containers:
+      - name: linkding
+        image: sissbruecker/linkding:latest
+        volumeMounts:
+        - name: data
+          mountPath: /etc/linkding/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: linkding-data-pvc
+```
+
+**What happens when node fails:**
+1. Kubernetes detects node failure
+2. Pod is rescheduled to healthy node
+3. Longhorn attaches replicated volume to new node
+4. App starts with data intact (0 data loss)
+5. Downtime: ~2-5 minutes for pod reschedule
+
+### Alternative: Automated Backup Strategy
+
+**For less critical SQLite apps** where some downtime is acceptable:
+
+#### Option 1: Backup CronJob to TrueNAS
+
+```yaml
+# apps/base/linkding/backup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: linkding-backup
+  namespace: linkding
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: busybox:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Create timestamped backup
+              BACKUP_FILE="/backup/linkding-$(date +%Y%m%d-%H%M%S).tar.gz"
+              tar czf "$BACKUP_FILE" -C /data .
+              
+              # Keep only last 14 backups (7 days at 2/day)
+              cd /backup
+              ls -t linkding-*.tar.gz | tail -n +15 | xargs -r rm
+              
+              echo "Backup completed: $BACKUP_FILE"
+              ls -lh /backup/
+            volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: true
+            - name: backup
+              mountPath: /backup
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: linkding-data-pvc
+          - name: backup
+            nfs:
+              server: 10.10.10.20
+              path: /mnt/big/k8s-apps/backups/linkding
+```
+
+**Recovery process if node fails:**
+```bash
+# 1. Deploy to new node (automatic)
+kubectl apply -k apps/staging/linkding/
+
+# 2. Restore latest backup
+LATEST_BACKUP=$(ssh truenas "ls -t /mnt/big/k8s-apps/backups/linkding/*.tar.gz | head -1")
+kubectl exec -n linkding deployment/linkding -- sh -c "
+  cd /etc/linkding/data
+  rm -rf *
+  wget -qO- http://truenas.local/backups/linkding/$(basename $LATEST_BACKUP) | tar xzf -
+"
+
+# 3. Restart pod
+kubectl rollout restart deployment/linkding -n linkding
+```
+
+**Downtime:** Depends on RTO (15 minutes with automation)  
+**Data loss:** Up to 6 hours (backup interval)
+
+#### Option 2: Velero for Cluster Backup
+
+```yaml
+# Install Velero with TrueNAS S3 backend
+velero install \
+  --provider aws \
+  --plugins velero/velero-plugin-for-aws:v1.8.0 \
+  --bucket k8s-backups \
+  --secret-file ./minio-credentials \
+  --use-volume-snapshots=false \
+  --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://truenas.local:9000
+
+# Schedule Linkding backup
+velero schedule create linkding-backup \
+  --schedule="0 */4 * * *" \
+  --include-namespaces linkding \
+  --default-volumes-to-fs-backup
+```
+
+**Recovery:**
+```bash
+velero restore create --from-backup linkding-backup-20241114
+```
+
+### Decision Matrix: Which Strategy?
+
+| App Criticality | Data Loss Tolerance | Recommended Strategy | Estimated RTO | RPO |
+|-----------------|---------------------|---------------------|---------------|-----|
+| **Critical** (user data) | None | Longhorn replication | 2-5 min | 0 |
+| **Important** (can rebuild) | < 6 hours | Backup CronJob (6h) | 15 min | 6 hours |
+| **Low** (testing/dev) | 24 hours | Daily backup | 30 min | 24 hours |
+| **Best** (production) | None | Migrate to PostgreSQL | 2 min | 0 |
+
+### Recommended Per App
+
+| App | Criticality | Strategy | Why |
+|-----|-------------|----------|-----|
+| **Linkding** | High (bookmarks) | **Longhorn replication** | User data, frequent writes |
+| **Audiobookshelf** | Medium (metadata) | Backup CronJob (4h) | Metadata can be rebuilt from media |
+| **Dev/Test apps** | Low | Daily backup or local-path only | Acceptable to rebuild |
+
+### Implementation Steps
+
+**For Longhorn approach:**
+```bash
+# 1. Ensure Longhorn is deployed
+kubectl get storageclass longhorn
+
+# 2. Create SQLite-specific StorageClass
+kubectl apply -f infrastructure/controllers/base/longhorn/storage-class-sqlite.yaml
+
+# 3. Update app to use Longhorn
+# Edit apps/base/linkding/storage.yaml
+# Change storageClassName to: longhorn-sqlite
+
+# 4. Migrate data
+kubectl scale deployment linkding -n linkding --replicas=0
+# Copy data from local-path PV to new Longhorn PV
+kubectl apply -k apps/staging/linkding/
+kubectl scale deployment linkding -n linkding --replicas=1
+```
+
+**For backup approach:**
+```bash
+# 1. Create backup CronJob
+kubectl apply -f apps/base/linkding/backup-cronjob.yaml
+
+# 2. Verify backups working
+kubectl get cronjobs -n linkding
+kubectl logs -n linkding job/linkding-backup-<id>
+
+# 3. Test restore procedure
+# (Document in runbook)
+```
+
+### Monitoring and Alerts
+
+**For Longhorn:**
+```yaml
+# Alert on replica degradation
+- alert: LonghornVolumeReplicaDegraded
+  expr: longhorn_volume_replica_count < 3
+  for: 5m
+  annotations:
+    summary: "Longhorn volume {{ $labels.volume }} has degraded replicas"
+```
+
+**For backups:**
+```yaml
+# Alert on backup failure
+- alert: BackupJobFailed
+  expr: kube_job_status_failed{namespace="linkding",job_name=~"linkding-backup.*"} > 0
+  annotations:
+    summary: "Linkding backup job failed"
+```
+
+### Cost-Benefit Analysis
+
+**Longhorn Replication:**
+- **Cost**: 3x storage usage (replication factor 3), CPU/network for replication
+- **Benefit**: Automatic failover, 0 data loss, 2-5 min RTO
+- **Best for**: Critical SQLite apps with frequent writes
+
+**Backup Strategy:**
+- **Cost**: Minimal (storage for backups only), negligible CPU
+- **Benefit**: Simple, reliable, good enough for most cases
+- **Best for**: Less critical apps, read-heavy workloads
+
+**PostgreSQL Migration:**
+- **Cost**: One-time migration effort, slightly more RAM
+- **Benefit**: Best long-term solution, NFS compatible, scales better
+- **Best for**: Apps with PostgreSQL support, future-proof
+
 ## Migration Plan
 
 ### Phase 1: Expand TrueNAS Integration (Immediate)
