@@ -5,17 +5,23 @@
 ## 30-Second Decision Tree
 
 ```
-Do you need to store data persistently?
-├─ YES → Use TrueNAS NFS
-│   ├─ Databases: ✅ TrueNAS NFS
-│   ├─ Media files: ✅ TrueNAS NFS
-│   ├─ App configs: ✅ TrueNAS NFS
-│   └─ AI/ML models: ✅ TrueNAS NFS
+Does your app use SQLite database?
+├─ YES → ⚠️ Use local-path (NFS breaks SQLite!)
+│   ├─ Linkding: ✅ local-path
+│   ├─ Audiobookshelf config: ✅ local-path
+│   └─ Other SQLite apps: ✅ local-path
 │
-└─ NO → Use local-path
-    ├─ Caches: ✅ local-path
-    ├─ Temp files: ✅ local-path
-    └─ Session data: ✅ local-path
+└─ NO → Is data persistent?
+    ├─ YES → Use TrueNAS NFS
+    │   ├─ PostgreSQL/MySQL: ✅ TrueNAS NFS
+    │   ├─ Media files: ✅ TrueNAS NFS
+    │   ├─ App configs: ✅ TrueNAS NFS
+    │   └─ AI/ML models: ✅ TrueNAS NFS
+    │
+    └─ NO → Use local-path
+        ├─ Caches: ✅ local-path
+        ├─ Temp files: ✅ local-path
+        └─ Session data: ✅ local-path
 
 Do you need to live migrate VMs between Proxmox nodes?
 ├─ YES → Deploy Ceph (Proxmox only, not for apps)
@@ -27,8 +33,9 @@ Do you need to live migrate VMs between Proxmox nodes?
 | What are you storing? | Use this | Not this | Why? |
 |------------------------|----------|----------|------|
 | Database (PostgreSQL, MySQL) | TrueNAS NFS | local-path, Ceph | Persistent, needs backups |
+| **SQLite databases** ⚠️ | **local-path** | **TrueNAS NFS** | **NFS locking issues** |
 | Media files (video, audio) | TrueNAS NFS | Ceph, Longhorn | Large files, already there |
-| Application configs | TrueNAS NFS | local-path | Persistent, small, important |
+| Application configs (non-SQLite) | TrueNAS NFS | local-path | Persistent, small, important |
 | AI/ML models | TrueNAS NFS | local-path | Large, shared, persistent |
 | Redis cache | local-path | TrueNAS NFS | Ephemeral, speed matters |
 | Session storage | local-path | TrueNAS NFS | Ephemeral, can rebuild |
@@ -64,6 +71,50 @@ Think about it:
 - More components = more failure modes
 - More operational overhead
 - More things to monitor and debug
+
+## ⚠️ Critical Exception: SQLite Databases
+
+**SQLite does NOT work reliably on NFS!**
+
+SQLite databases can experience corruption due to NFS file locking issues, especially during network interruptions or connection losses during writes.
+
+### Apps That Use SQLite
+- **Linkding** - Bookmark manager
+- **Audiobookshelf** - Metadata database (config volume)
+- Many other lightweight web apps
+
+### What To Do
+
+**For SQLite apps, use one of these approaches:**
+
+1. **Keep on local-path** (Simplest)
+   ```yaml
+   storageClassName: local-path
+   ```
+   - ✅ Reliable, no NFS issues
+   - ❌ Tied to single node
+   - ✅ Use regular backups to TrueNAS
+
+2. **Use Longhorn** (For replication)
+   ```yaml
+   storageClassName: longhorn
+   ```
+   - ✅ Replicated across nodes
+   - ❌ More complex than local-path
+   - ✅ Better for high-value data
+
+3. **Migrate to PostgreSQL** (Best long-term)
+   - Run PostgreSQL on TrueNAS NFS (works great!)
+   - Migrate app data from SQLite to PostgreSQL
+   - ✅ Scales better, more reliable
+
+### Recommended Per App
+
+- **Linkding**: Keep SQLite on local-path + nightly backup script to TrueNAS
+- **Audiobookshelf**: Keep config/metadata on local-path, media on TrueNAS NFS
+- **Ollama**: Safe to use TrueNAS NFS (doesn't use SQLite)
+
+**Bottom line**: Don't put SQLite databases on NFS. Use local-path or migrate to PostgreSQL.
 
 ## Three-Step Getting Started
 
@@ -125,19 +176,24 @@ kubectl get pods -n <namespace> -w
 
 ### ❌ Don't Do This
 
-1. **Don't use multiple storage backends for same data**
-   - Bad: App config on local-path, database on Longhorn, media on NFS
-   - Good: Everything persistent on TrueNAS NFS, only caches on local-path
+1. **Don't put SQLite databases on NFS** ⚠️
+   - Bad: Linkding with SQLite on TrueNAS NFS (corruption risk!)
+   - Good: Keep SQLite apps on local-path or Longhorn
 
-2. **Don't deploy Ceph for application data**
+2. **Don't use multiple storage backends for same data**
+   - Bad: App config on local-path, database on Longhorn, media on NFS
+   - Good: Pick one backend per data type (SQLite → local-path, rest → NFS)
+
+3. **Don't deploy Ceph for application data**
    - Bad: Migrate apps from local-path to Ceph
    - Good: Use Ceph only for Proxmox VMs (if needed)
 
-3. **Don't store persistent data on local-path**
-   - Bad: Database on local-path (lost on node failure)
-   - Good: Database on TrueNAS NFS (survives node failure)
+4. **Don't store non-SQLite persistent data on local-path**
+   - Bad: PostgreSQL database on local-path (lost on node failure)
+   - Good: PostgreSQL on TrueNAS NFS (survives node failure)
+   - Exception: SQLite must stay on local-path due to NFS locking issues
 
-4. **Don't skip backups**
+5. **Don't skip backups**
    - Bad: Trust single storage system
    - Good: ZFS snapshots + off-site replication
 
@@ -175,15 +231,34 @@ For app data, TrueNAS is simpler and better.
 
 ### Q: What about Longhorn?
 
-**A: Phase it out.**
+**A: Keep it for SQLite apps, phase out for others.**
 
-Longhorn adds complexity without benefits over TrueNAS:
-- Uses node local disks (limited capacity)
-- Replicates over network (slower than TrueNAS)
-- Another system to manage and debug
-- TrueNAS provides same features + ZFS benefits
+**Use Longhorn for:**
+- ✅ Apps with SQLite databases (if you need replication)
+- ✅ Apps where you need cross-node failover
 
-Recommendation: Migrate from Longhorn to TrueNAS NFS.
+**Don't use Longhorn for:**
+- ❌ PostgreSQL/MySQL databases (use TrueNAS NFS)
+- ❌ Media files (use TrueNAS NFS)
+- ❌ Apps that work fine on local-path
+
+Longhorn's main value: Replicating SQLite databases safely (unlike NFS).
+
+### Q: What's wrong with SQLite on NFS?
+
+**A: File locking issues cause corruption.**
+
+SQLite uses file-level locking that doesn't work reliably over NFS:
+- Network interruptions can cause lock timeouts
+- Lost connections during writes risk corruption
+- WAL mode doesn't fully solve it on NFS
+
+**Apps affected:** Linkding, Audiobookshelf (metadata), many others.
+
+**Solutions:**
+1. Keep SQLite apps on local-path + backup to NFS
+2. Use Longhorn for replication (if needed)
+3. Migrate app to PostgreSQL (best long-term)
 
 ### Q: Won't NFS be slow?
 
@@ -254,18 +329,25 @@ Ready to implement? Follow this order:
 ## Summary
 
 **The Strategy:**
-- ✅ TrueNAS NFS for all persistent data
+- ✅ TrueNAS NFS for all persistent data (PostgreSQL, media, configs, AI models)
+- ⚠️ **Exception: SQLite apps on local-path or Longhorn** (NFS locking issues!)
 - ✅ local-path for caches and ephemeral data
+- ⚠️ Keep Longhorn for SQLite apps needing replication (optional)
 - ⚠️ Ceph only if you need VM live migration (optional)
-- ❌ Phase out Longhorn
-- ❌ Don't use multiple backends for same data
+- ❌ Don't use multiple backends for same data type
+
+**Critical Rules:**
+1. **Never** put SQLite databases on NFS (corruption risk)
+2. **Always** use TrueNAS NFS for PostgreSQL/MySQL
+3. **Always** keep media files on TrueNAS NFS
+4. **Always** backup SQLite apps from local-path to TrueNAS
 
 **Why It Works:**
-- Simpler architecture
-- Single source of truth
+- Simpler architecture (mostly single backend)
+- SQLite safety (avoid NFS locking issues)
 - Aligns with reality (apps depend on TrueNAS)
-- Proven reliable (ZFS + NFS)
+- Proven reliable (ZFS + NFS for most things)
 - Easy to backup and restore
 
 **Bottom Line:**
-Don't overthink it. Use TrueNAS for everything important. You already have it, it's reliable, and it's fast enough.
+Use TrueNAS NFS for everything EXCEPT SQLite databases. Keep SQLite apps on local-path with backups to TrueNAS.

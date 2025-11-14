@@ -482,7 +482,11 @@ sudo rm -rf /var/lib/rancher/k3s/storage/ollama
 
 ### Migrate Linkding
 
-Linkding uses a single PVC. Process is similar but simpler:
+⚠️ **IMPORTANT: Linkding uses SQLite, which has known issues on NFS!**
+
+**Recommended approach**: Keep Linkding on local-path storage to avoid SQLite locking issues.
+
+If you still want to migrate to NFS (not recommended):
 
 ```bash
 # 1. Scale down
@@ -511,7 +515,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: truenas-nfs
+  storageClassName: truenas-nfs  # ⚠️ Risk: SQLite on NFS
   resources:
     requests:
       storage: 5Gi
@@ -522,6 +526,63 @@ spec:
 kubectl delete pvc linkding-data-pvc -n linkding
 kubectl apply -k apps/staging/linkding/
 kubectl get pods -n linkding -w
+```
+
+**Better approach**: Keep Linkding on local-path:
+
+```yaml
+# apps/base/linkding/storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: linkding-data-pvc
+  namespace: linkding
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path  # ✅ Safe for SQLite
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+Set up nightly backups to TrueNAS:
+
+```yaml
+# Create a backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: linkding-backup
+  namespace: linkding
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: busybox
+            command:
+            - /bin/sh
+            - -c
+            - |
+              tar czf /backup/linkding-$(date +%Y%m%d).tar.gz /data
+          volumeMounts:
+          - name: data
+            mountPath: /data
+          - name: backup
+            mountPath: /backup
+          volumes:
+          - name: data
+            persistentVolumeClaim:
+              claimName: linkding-data-pvc
+          - name: backup
+            nfs:
+              server: 10.10.10.20
+              path: /mnt/big/k8s-apps/backups/linkding
+          restartPolicy: OnFailure
 ```
 
 ### Migrate Karakeep
@@ -544,15 +605,76 @@ spec:
       storage: 50Gi
 ```
 
-### Audiobookshelf (Already on NFS)
+### Audiobookshelf (Hybrid Approach)
 
-Audiobookshelf already uses NFS for media. Only migrate config/metadata:
+⚠️ **IMPORTANT: Audiobookshelf uses SQLite for metadata!**
+
+**Recommended approach**: Keep metadata/config on local-path, media on NFS.
 
 ```yaml
 # apps/base/audiobookshelf/storage.yaml
-# Update config and metadata PVCs to use truenas-nfs instead of local-path
-# Keep audiobooks on existing NFS mount
+
+# Config and metadata on local-path (SQLite database lives here)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-config-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path  # ✅ Safe for SQLite
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-metadata-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path  # ✅ Safe for SQLite
+  resources:
+    requests:
+      storage: 1Gi
+
+# Media files on TrueNAS NFS (already working)
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: audiobookshelf-audiobooks-pv
+spec:
+  storageClassName: nfs
+  capacity:
+    storage: 80Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 10.10.10.20
+    path: /mnt/big/media/books/audio
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-audiobooks-pvc
+spec:
+  storageClassName: nfs
+  volumeName: audiobookshelf-audiobooks-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 80Gi
 ```
+
+This hybrid approach:
+- ✅ Keeps SQLite safe on local-path
+- ✅ Keeps large media files on NFS
+- ✅ Follows best practices for both
 
 ## Phase 4: Set TrueNAS as Default Storage Class
 

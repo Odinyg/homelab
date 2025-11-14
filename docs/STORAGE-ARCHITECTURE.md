@@ -117,12 +117,94 @@ This document outlines the comprehensive storage strategy for the homelab Kubern
 |------------------|---------------------|-----------|
 | Media Files (video, audio, books) | TrueNAS NFS | Large files, shared access |
 | Databases (PostgreSQL, MySQL) | TrueNAS NFS | Persistent, needs backups |
+| **SQLite Databases** | **local-path or Longhorn** | **NFS locking issues, see note below** |
 | Application Config | TrueNAS NFS | Persistent, small, needs backups |
 | AI/ML Models | TrueNAS NFS | Large models, shared across pods |
 | Application Caches | local-path | Fast, ephemeral, can rebuild |
 | Session Storage | local-path | Fast, ephemeral, can rebuild |
 | Backup Repository | TrueNAS S3 (MinIO) | Long-term storage, versioning |
 | K3s Control Plane | Ceph (optional) | HA requirement, small size |
+
+### ⚠️ Important: SQLite on NFS Considerations
+
+**SQLite databases have known issues with NFS** due to file locking problems, especially during network interruptions or connection losses. This affects several common homelab applications:
+
+**Apps using SQLite:**
+- Linkding (bookmark manager)
+- Audiobookshelf (metadata database)
+- Many lightweight web apps
+
+**The Problem:**
+- NFS uses advisory locking, which SQLite relies on
+- Network interruptions can cause lock timeouts
+- Database corruption risk if locks fail during writes
+- WAL mode doesn't fully solve the issue on NFS
+
+**Recommended Solutions:**
+
+#### Option 1: Use Local Storage for SQLite Apps (Recommended)
+```yaml
+# Keep SQLite databases on local-path or Longhorn
+storageClassName: local-path  # or longhorn for replication
+```
+
+**Pros:**
+- No NFS locking issues
+- Better performance for SQLite
+- Proven reliability
+
+**Cons:**
+- Tied to single node (local-path)
+- Need manual backups
+- Or use Longhorn for replication (adds complexity)
+
+#### Option 2: Migrate to PostgreSQL
+For critical apps like Linkding, consider migrating to PostgreSQL:
+```yaml
+# Run PostgreSQL on TrueNAS NFS (works great!)
+# Configure app to use PostgreSQL instead of SQLite
+```
+
+**Pros:**
+- PostgreSQL works perfectly on NFS
+- Better for multi-node setups
+- More robust for production
+
+**Cons:**
+- Requires database migration
+- Additional operational complexity
+
+#### Option 3: Use ReadWriteOnce + Node Affinity
+Pin SQLite apps to specific nodes with local storage:
+```yaml
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - mainkube  # Pin to specific node
+```
+
+**Pros:**
+- Works with single-replica apps
+- Simpler than Longhorn
+
+**Cons:**
+- App unavailable if node goes down
+- Manual migration if node changes
+
+### Updated Recommendations for Known Apps
+
+| App | Database | Recommended Storage | Alternative |
+|-----|----------|---------------------|-------------|
+| Linkding | SQLite | local-path + backups | Migrate to PostgreSQL on NFS |
+| Audiobookshelf | SQLite (metadata) | local-path for config/metadata, NFS for media | Keep current setup |
+| Ollama | File-based | TrueNAS NFS (models are just files) | N/A |
+| Karakeep | Unknown | Verify database type first | If SQLite, use local-path |
 
 ## Migration Plan
 
