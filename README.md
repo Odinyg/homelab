@@ -166,18 +166,74 @@ All sensitive data is encrypted using **SOPS** with **age** encryption:
 
 ## 💾 Storage Strategy
 
+### Overview
+
+The homelab uses a **TrueNAS-centric storage architecture** that simplifies operations by leveraging TrueNAS as the primary storage backend for all persistent data. Since application availability is tied to TrueNAS availability anyway (apps can't function without data access), this approach reduces complexity while maintaining reliability.
+
+📚 **Detailed Documentation**: See [docs/STORAGE-ARCHITECTURE.md](./docs/STORAGE-ARCHITECTURE.md) for complete architecture details and migration guides.
+
+### Storage Tiers
+
+#### Tier 1: TrueNAS Primary Storage (Recommended)
+- **Technology**: NFS/SMB from TrueNAS + S3 (MinIO)
+- **Use Cases**: All persistent application data, media files, databases
+- **Status**: ✅ In use for media (audiobookshelf)
+- **Next Steps**: Migrate remaining apps from local-path to TrueNAS NFS
+
+#### Tier 2: Node-Local Fast Storage
+- **Technology**: K3s local-path provisioner
+- **Use Cases**: Caches, temporary files, ephemeral data
+- **Status**: ✅ In use for most apps
+- **Recommendation**: Keep for caches, migrate persistent data to TrueNAS
+
+#### Tier 3: Ceph Distributed Storage (Optional)
+- **Technology**: Ceph RBD across 3 Proxmox nodes
+- **Use Cases**: VM live migration, K3s control plane HA
+- **Status**: 📋 Planned (optional)
+- **Recommendation**: Deploy only if you need VM live migration
+
 ### Storage Classes
-- **local-path**: Fast local storage for testing purposes and stateful apps
-- **longhorn**: Replicated distributed storage for critical data
-- **nfs**: Network storage for large media files
-- **smb**: Windows SMB/CIFS shares for existing media libraries
-- **s3**: Object storage (not implemented yet) - planned for backups, archive storage, and application data
+
+| Storage Class | Type | Primary Use | Current Status |
+|---------------|------|-------------|----------------|
+| `truenas-nfs` | TrueNAS NFS | **Recommended for all persistent data** | 📋 To be deployed |
+| `local-path` | Node-local | Caches and ephemeral storage | ✅ In use |
+| `longhorn` | Distributed | Legacy, being phased out | ⚠️ Not recommended |
+| `ceph-rbd` | Ceph | VM storage (Proxmox only) | 🔮 Optional |
+| `truenas-s3` | MinIO S3 | Backups and archives | 📋 Planned |
+
+### Migration Plan
+
+**Phase 1: Expand TrueNAS Integration** (Current)
+- Deploy NFS CSI provisioner for dynamic PV provisioning
+- Migrate apps from local-path to TrueNAS NFS
+- Configure automated ZFS snapshots
+- See: [docs/STORAGE-MIGRATION-GUIDE.md](./docs/STORAGE-MIGRATION-GUIDE.md)
+
+**Phase 2: Implement S3 Object Storage**
+- Deploy MinIO on TrueNAS Scale
+- Configure backup pipeline with Velero/Restic
+- Automated database backups to S3
+
+**Phase 3: Ceph Deployment** (Optional)
+- Deploy Ceph on Proxmox for VM live migration
+- Only for infrastructure VMs, not application data
+- See: [docs/CEPH-DEPLOYMENT-GUIDE.md](./docs/CEPH-DEPLOYMENT-GUIDE.md)
 
 ### Backup Strategy
-- **Proxmox VM snapshots** for complete node backup and disaster recovery
-- **Longhorn snapshots** for critical application data with automated scheduling
-- **Git repository** contains all configuration as code with encrypted secrets
-- **Automated backup** pipeline to S3 storage (planned)
+
+**TrueNAS-Centric Approach:**
+- **ZFS Snapshots**: Automated hourly/daily/weekly snapshots on TrueNAS
+- **ZFS Replication**: Off-site replication to external backup
+- **Application Backups**: Database dumps to S3 (daily)
+- **GitOps**: All manifests and configs in Git with SOPS encryption
+- **Proxmox VM snapshots**: Control plane VM backups
+
+**Disaster Recovery RTO/RPO:**
+- Single app failure: 5 min RTO, 0 RPO (data on TrueNAS)
+- K3s node failure: 2 min RTO, 0 RPO (automatic rescheduling)
+- TrueNAS failure: 4 hours RTO, 24 hours RPO (restore from backup)
+- Complete cluster loss: 2 hours RTO, 0 RPO (rebuild from Git + TrueNAS)
 
 ## 🐛 Troubleshooting
 
@@ -193,14 +249,24 @@ sudo nvidia-ctk runtime configure --runtime=containerd --config=/var/lib/rancher
 
 ## 🔮 Roadmap
 
+### Storage Architecture (In Progress)
+- [x] **Storage architecture planning** - Comprehensive TrueNAS-centric strategy defined
+- [ ] **Deploy NFS CSI provisioner** - Dynamic PV provisioning from TrueNAS
+- [ ] **Migrate apps to TrueNAS NFS** - Move persistent data from local-path to TrueNAS
+- [ ] **MinIO S3 deployment** - Object storage for backups and archives
+- [ ] **Optional Ceph deployment** - VM live migration capability (if needed)
+
+### Cluster Expansion
 - [ ] **Add Raspberry Pi workers** - Deploy Talos OS on RPi cluster for HA
 - [ ] **Add laptop control plane nodes** - Configure XPS 15 and Razer 15 as K3s masters/workers for HA control plane
 - [ ] **MetalLB implementation** - Load balancer for service distribution across K3s nodes
+
+### Infrastructure Improvements
 - [ ] **Deploy Vault** - Centralized secret management across cluster
 - [ ] **Docker container migration** - Move services from N100 mini PC to K3s cluster
-- [ ] **S3 storage backend** - Implement object storage on TrueNAS Scale
 - [ ] **Tailscale operator** - Native Kubernetes integration for VPN access
 - [ ] **Production environment** - Create production overlay configurations
+- [ ] **Storage monitoring dashboards** - Grafana dashboards for TrueNAS and Ceph metrics
 
 
 ---
