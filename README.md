@@ -170,7 +170,11 @@ All sensitive data is encrypted using **SOPS** with **age** encryption:
 
 The homelab uses a **TrueNAS-centric storage architecture** that simplifies operations by leveraging TrueNAS as the primary storage backend for all persistent data. Since application availability is tied to TrueNAS availability anyway (apps can't function without data access), this approach reduces complexity while maintaining reliability.
 
-📚 **Detailed Documentation**: See [docs/STORAGE-ARCHITECTURE.md](./docs/STORAGE-ARCHITECTURE.md) for complete architecture details and migration guides.
+**📚 Documentation:**
+- 🚀 **[Quick Start Guide](./docs/STORAGE-QUICK-START.md)** - Start here! 30-second decision tree and migration cheat sheet
+- 📖 **[Architecture Strategy](./docs/STORAGE-ARCHITECTURE.md)** - Complete technical architecture and rationale
+- 📋 **[Migration Guide](./docs/STORAGE-MIGRATION-GUIDE.md)** - Step-by-step migration instructions
+- 🔧 **[Ceph Deployment](./docs/CEPH-DEPLOYMENT-GUIDE.md)** - Optional Ceph setup for VM HA (if needed)
 
 ### Storage Tiers
 
