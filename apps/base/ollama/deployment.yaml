@@ -17,7 +17,7 @@ spec:
           claimName: open-webui-pvc
       containers:
       - name: open-webui
-        image: ghcr.io/open-webui/open-webui:0.7.2
+        image: ghcr.io/open-webui/open-webui:v0.8.1
         ports:
         - containerPort: 8080
         env:
